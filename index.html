@@ -290,6 +290,9 @@
             transform: translateZ(0);
             image-rendering: -webkit-optimize-contrast;
         }
+        /* Small helper to hide scrollbar on the mobile quicknav while keeping it scrollable */
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 
@@ -312,16 +315,7 @@
                     <p class="text-xs text-gray-500 font-semibold tracking-wide -mt-1">Authorised Distributor for Ozone</p>
                 </div>
             </a>
-            <!-- Header quick-nav moved from hero: compact single-line buttons to jump to important sections (mobile-only) -->
-            <div id="hero-mobile-quicknav" class="flex md:hidden ml-4">
-                <div class="bg-white/90 rounded-full px-2 py-1 shadow-md flex gap-2 overflow-x-auto max-w-lg">
-                    <a href="#portfolio" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Portfolio</a>
-                    <a href="#catalogues" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Catalogues</a>
-                    <a href="#podcasts" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Podcasts</a>
-                    <a href="#leaderboard" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Leaderboard</a>
-                    <a href="#contact" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Contact</a>
-                </div>
-            </div>
+            <!-- (mobile quick-nav moved below header to avoid layout shifts) -->
             <div class="hidden md:flex items-center space-x-8 font-semibold">
                 <a href="#home" class="nav-link active">Home</a>
                 <a href="#portfolio" class="nav-link">Partners</a>
@@ -346,6 +340,17 @@
             <a href="#admin" class="block mt-4 py-2 px-4 rounded-lg btn-primary text-center">Admin Login</a>
         </div>
     </header>
+
+    <!-- Mobile-only quick-nav placed below header to avoid breaking header layout on small screens -->
+    <div id="hero-mobile-quicknav" class="block md:hidden w-full px-4 py-2 bg-white/90 border-b">
+        <div class="rounded-full px-2 py-1 shadow-sm flex gap-2 overflow-x-auto no-scrollbar">
+            <a href="#portfolio" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Portfolio</a>
+            <a href="#catalogues" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Catalogues</a>
+            <a href="#podcasts" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Podcasts</a>
+            <a href="#leaderboard" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Leaderboard</a>
+            <a href="#contact" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Contact</a>
+        </div>
+    </div>
 
     <main>
         <!-- Page 1: Home -->
