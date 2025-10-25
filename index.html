@@ -285,6 +285,18 @@
         /* Header logo default sizing */
         .header-logo { max-height: 48px; width: auto; display: block; }
 
+            /* Podcast card styles: consistent 16:9 media area and smooth embed transitions */
+            .podcast-card { border-radius: 0.75rem; overflow: hidden; display: flex; flex-direction: column; background: #fff; box-shadow: 0 6px 18px rgba(16,24,40,0.06); }
+            .podcast-media { position: relative; width: 100%; padding-top: 56.25%; /* 16:9 */ background: #000; overflow: hidden; }
+            .podcast-media img, .podcast-media iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+            .podcast-media .play-overlay { position: absolute; inset: 0; display:flex; align-items:center; justify-content:center; }
+            .podcast-media .play-button { width:56px; height:56px; border-radius:9999px; background:rgba(0,0,0,0.5); color:white; display:flex; align-items:center; justify-content:center; font-size:22px; }
+            .podcast-card .p-4 { padding: 1rem; }
+            .podcast-close { position: absolute; right: 10px; top: 10px; z-index: 30; width:36px; height:36px; border-radius:9999px; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.5); color: #fff; border: none; }
+            .podcast-close:hover { background: rgba(0,0,0,0.65); }
+            .podcast-embed-trigger, .podcast-embed-trigger img { display:block; width:100%; height:100%; border:0; background:none; }
+            .podcast-card .meta { padding: 0.9rem 1rem; }
+
         /* iOS image rendering fixes: avoid translateZ (can crop on some WebKit), use backface-visibility and intrinsic sizing */
         header img {
             -webkit-transform: none !important;
@@ -1863,71 +1875,94 @@ const getLastQuarterPoints = (partner) => {
             const renderPodcasts = () => {
                 const container = document.getElementById('podcast-list');
                 if(!container) return;
-                container.innerHTML = (podcasts || []).map(pod => {
+                container.innerHTML = (podcasts || []).map((pod, idx) => {
                     const title = pod.title || 'Untitled';
                     const partner = pod.partnerName || '';
-                    if (pod.videoId) {
-                        const thumb = `https://img.youtube.com/vi/${pod.videoId}/hqdefault.jpg`;
-                        if (pod.embedInline) {
-                            // Render a clickable thumbnail that will embed inline when clicked
-                            return `
-                            <div class="card overflow-hidden">
-                                <a href="#" data-embed="true" data-videoid="${pod.videoId}" class="podcast-embed-trigger block relative">
-                                    <img src="${thumb}" alt="${title}" class="w-full h-auto object-cover">
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <div class="w-14 h-14 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white text-2xl">▶</div>
-                                    </div>
+                    const thumb = pod.videoId ? `https://img.youtube.com/vi/${pod.videoId}/hqdefault.jpg` : '';
+                    const embed = !!pod.embedInline;
+
+                    return `
+                    <div class="podcast-card" data-index="${idx}">
+                        <div class="podcast-media">
+                            ${pod.videoId ? (embed ? `
+                                <button type="button" class="podcast-embed-trigger" data-videoid="${pod.videoId}" aria-label="Play ${title}">
+                                    <img src="${thumb}" alt="${title}" />
+                                    <div class="play-overlay"><span class="play-button">▶</span></div>
+                                </button>
+                            ` : `
+                                <a href="https://www.youtube.com/watch?v=${pod.videoId}" target="_blank" class="block">
+                                    <img src="${thumb}" alt="${title}" />
+                                    <div class="play-overlay"><span class="play-button">▶</span></div>
                                 </a>
-                                <div class="p-4"><h3 class="font-bold">${title}</h3><p class="text-sm text-gray-600">With ${partner}</p></div>
-                            </div>`;
-                        }
-                        // Default: link to YouTube (open in new tab)
-                        return `
-                        <div class="card overflow-hidden">
-                            <a href="https://www.youtube.com/watch?v=${pod.videoId}" target="_blank" class="block relative">
-                                <img src="${thumb}" alt="${title}" class="w-full h-auto object-cover">
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <div class="w-14 h-14 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white text-2xl">▶</div>
-                                </div>
-                            </a>
-                            <div class="p-4"><h3 class="font-bold">${title}</h3><p class="text-sm text-gray-600">With ${partner}</p></div>
-                        </div>`;
-                    } else if (pod.originalUrl) {
-                        const safeUrl = pod.originalUrl;
-                        return `
-                        <div class="card overflow-hidden">
-                            <div class="p-4"><h3 class="font-bold">${title}</h3><p class="text-sm text-gray-600">With ${partner}</p>
-                            <p class="text-xs text-gray-500 mt-2">Video: <a href="${safeUrl}" target="_blank" class="text-blue-600 hover:underline truncate">${safeUrl}</a></p></div>
-                        </div>`;
-                    } else {
-                        return `
-                        <div class="card p-4"><h3 class="font-bold">${title}</h3><p class="text-sm text-gray-600">With ${partner}</p><p class="text-xs text-gray-500 mt-2">No playable video available.</p></div>`;
-                    }
+                            `) : (pod.originalUrl ? `
+                                <div class="p-4 text-xs text-gray-500">Video: <a href="${pod.originalUrl}" target="_blank" class="text-blue-600 hover:underline truncate">${pod.originalUrl}</a></div>
+                            ` : `
+                                <div class="p-4 text-xs text-gray-500">No playable video available.</div>
+                            `)}
+                        </div>
+                        <div class="meta">
+                            <h3 class="font-bold mb-1">${title}</h3>
+                            <p class="text-sm text-gray-600 mb-2">With ${partner}</p>
+                            ${pod.embedInline ? `<span class="inline-block px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">Embedded</span>` : ''}
+                        </div>
+                    </div>
+                    `;
                 }).join('');
-            
-                // Click-to-embed handler: when an inline-embed thumbnail is clicked, replace it with an iframe
-                document.getElementById('podcast-list')?.addEventListener('click', (e) => {
-                    const trigger = e.target.closest('a[data-embed="true"]');
-                    if (!trigger) return;
-                    e.preventDefault();
-                    const videoId = trigger.getAttribute('data-videoid');
-                    if (!videoId) return;
-                    const card = trigger.closest('.card');
-                    if (!card) return;
-                    // Create iframe inside an aspect wrapper
-                    const aspect = document.createElement('div');
-                    aspect.className = 'aspect-w-16 aspect-h-9';
-                    const iframe = document.createElement('iframe');
-                    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-                    iframe.title = 'YouTube video player';
-                    iframe.frameBorder = '0';
-                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                    iframe.allowFullscreen = true;
-                    iframe.className = 'w-full h-full';
-                    aspect.appendChild(iframe);
-                    // Replace the anchor (thumbnail) with the iframe aspect wrapper
-                    trigger.replaceWith(aspect);
-                });
+
+                // Attach delegated click handler once for the podcast list to handle embed and close
+                if (!container._podcastsHandlerAttached) {
+                    container.addEventListener('click', (e) => {
+                        // Play/embed
+                        const playBtn = e.target.closest('.podcast-embed-trigger');
+                        if (playBtn) {
+                            e.preventDefault();
+                            const videoId = playBtn.getAttribute('data-videoid');
+                            const card = playBtn.closest('.podcast-card');
+                            if (!card || !videoId) return;
+                            const media = card.querySelector('.podcast-media');
+                            // inject iframe and close button
+                            media.innerHTML = `
+                                <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <button type="button" class="podcast-close" aria-label="Close video">✕</button>
+                            `;
+                            return;
+                        }
+
+                        // Close embedded player and restore thumbnail
+                        const closeBtn = e.target.closest('.podcast-close');
+                        if (closeBtn) {
+                            const card = closeBtn.closest('.podcast-card');
+                            if (!card) return;
+                            const idx = parseInt(card.getAttribute('data-index'));
+                            const pod = podcasts[idx];
+                            const media = card.querySelector('.podcast-media');
+                            if (!media || !pod) return;
+                            const thumb = pod.videoId ? `https://img.youtube.com/vi/${pod.videoId}/hqdefault.jpg` : '';
+                            if (pod.videoId) {
+                                if (pod.embedInline) {
+                                    media.innerHTML = `
+                                        <button type="button" class="podcast-embed-trigger" data-videoid="${pod.videoId}" aria-label="Play ${pod.title || 'podcast'}">
+                                            <img src="${thumb}" alt="${pod.title || ''}" />
+                                            <div class="play-overlay"><span class="play-button">▶</span></div>
+                                        </button>
+                                    `;
+                                } else {
+                                    media.innerHTML = `
+                                        <a href="https://www.youtube.com/watch?v=${pod.videoId}" target="_blank" class="block">
+                                            <img src="${thumb}" alt="${pod.title || ''}" />
+                                            <div class="play-overlay"><span class="play-button">▶</span></div>
+                                        </a>
+                                    `;
+                                }
+                            } else if (pod.originalUrl) {
+                                media.innerHTML = `<div class="p-4 text-xs text-gray-500">Video: <a href="${pod.originalUrl}" target="_blank" class="text-blue-600 hover:underline truncate">${pod.originalUrl}</a></div>`;
+                            } else {
+                                media.innerHTML = `<div class="p-4 text-xs text-gray-500">No playable video available.</div>`;
+                            }
+                        }
+                    });
+                    container._podcastsHandlerAttached = true;
+                }
             }
             
             // --- ADMIN RENDER FUNCTIONS ---
