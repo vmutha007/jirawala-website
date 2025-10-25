@@ -800,8 +800,8 @@
 
     <footer class="bg-gray-800 text-white mt-16">
         <div class="container mx-auto px-6 py-8 text-center">
-            <p>&copy; 2024 Jirawala Axis. All Rights Reserved.</p>
-            <p class="text-sm text-gray-400 mt-2">Designed for partners in progress.</p>
+            <p>Jirawala Axis &copy; 2025. All Rights Reserved. From love by Virag❤️ </p>
+            <p class="text-sm text-gray-400 mt-2">Designed for partners in progress. </p>
         </div>
     </footer>
 
@@ -1684,6 +1684,7 @@ const getLastQuarterPoints = (partner) => {
                         <div><label class="block mb-1 font-medium">City</label><input type="text" id="modal-partner-city" class="w-full p-2 border rounded-lg" required value="${p.city || ''}"></div>
                         <div><label class="block mb-1 font-medium">Partner Type</label><select id="modal-partner-type" class="w-full p-2 border rounded-lg"><option>Designer</option><option>Carpenter</option><option>Dealer</option></select></div>
                         <div class="md:col-span-2"><label class="block mb-1 font-medium">Photo URL</label><input type="text" id="modal-partner-photo" class="w-full p-2 border rounded-lg" value="${p.photo || ''}"></div>
+                        <div class="md:col-span-2"><label class="block mb-1 font-medium">Or Upload Photo</label><input type="file" id="modal-partner-photo-file" accept="image/*" class="w-full p-2 border rounded-lg" /></div>
                          <div class="md:col-span-2"><label class="block mb-1 font-medium">Experience</label><textarea id="modal-partner-experience" class="w-full p-2 border rounded-lg" rows="3" placeholder="e.g., 10+ years in commercial design...">${p.experience || ''}</textarea></div>
                         <div><label class="block mb-1 font-medium">Phone Number</label><input type="tel" id="modal-partner-phone" class="w-full p-2 border rounded-lg" value="${p.phone || ''}"></div>
                         <div><label class="block mb-1 font-medium">Email</label><input type="email" id="modal-partner-email" class="w-full p-2 border rounded-lg" value="${p.email || ''}"></div>
@@ -1741,6 +1742,89 @@ const getLastQuarterPoints = (partner) => {
                 if(p.portfolio) document.getElementById('modal-partner-portfolio').value = p.portfolio.map(item => `${item.projectName} | ${item.url}`).join('\n');
                 ['verified', 'isNew', 'featured'].forEach(key => {
                     if(p[key]) document.getElementById(`modal-partner-${key}`).checked = true;
+                });
+                // Helper: compress image file to target size (approx) using canvas
+                const compressImageFile = (file, targetBytes = 1000000) => {
+                    return new Promise((resolve, reject) => {
+                        if (!file.type.startsWith('image/')) {
+                            reject(new Error('Not an image'));
+                            return;
+                        }
+                        const img = new Image();
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            img.src = reader.result;
+                        };
+                        reader.onerror = reject;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            const MAX_WIDTH = img.width;
+                            const MAX_HEIGHT = img.height;
+                            // start with original dimensions, we will scale if necessary
+                            canvas.width = MAX_WIDTH;
+                            canvas.height = MAX_HEIGHT;
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                            // try progressively reducing quality to reach target
+                            let quality = 0.92;
+                            const step = 0.08; // quality decrement
+                            const tryCompress = () => {
+                                const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                                // estimate size from base64 length
+                                const size = Math.round((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
+                                if (size <= targetBytes || quality <= 0.5) {
+                                    resolve(dataUrl);
+                                } else {
+                                    quality = Math.max(0.5, quality - step);
+                                    // if still large and quality hit minimum, try resizing
+                                    if (quality === 0.5 && size > targetBytes) {
+                                        // scale down by 0.9 and retry
+                                        canvas.width = Math.round(canvas.width * 0.9);
+                                        canvas.height = Math.round(canvas.height * 0.9);
+                                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                    }
+                                    // loop until condition met
+                                    setTimeout(tryCompress, 0);
+                                }
+                            };
+                            tryCompress();
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                };
+
+                // Handle uploaded photo file and save as data URL into the photo input
+                const photoFileInput = document.getElementById('modal-partner-photo-file');
+                photoFileInput?.addEventListener('change', async (ev) => {
+                    const file = ev.target.files && ev.target.files[0];
+                    if (!file) return;
+                    const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB
+                    if (file.size > MAX_RAW_BYTES) {
+                        showToast('File too large. Maximum allowed size is 2 MB.', true);
+                        return;
+                    }
+                    try {
+                        if (file.type.startsWith('image/')) {
+                            showToast('Compressing image...');
+                            const compressedDataUrl = await compressImageFile(file, 1000000); // target ~1MB
+                            document.getElementById('modal-partner-photo').value = compressedDataUrl;
+                            showToast('Image uploaded and compressed.');
+                        } else {
+                            // Non-image files: just read as data URL (if small enough)
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                const result = reader.result;
+                                if (typeof result === 'string') {
+                                    document.getElementById('modal-partner-photo').value = result;
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showToast('Failed to process image. Please try a different file.', true);
+                    }
                 });
                 
                 modalFooter.innerHTML = `
@@ -1820,6 +1904,7 @@ const getLastQuarterPoints = (partner) => {
                  modalContent.innerHTML = `
                     <div><label class="block mb-1 font-medium">Catalogue Title</label><input type="text" id="modal-catalogue-title" class="w-full p-2 border rounded-lg" required value="${c.title || ''}"></div>
                     <div><label class="block mb-1 font-medium">File URL</label><input type="url" id="modal-catalogue-file" class="w-full p-2 border rounded-lg" required value="${c.file || ''}"></div>
+                    <div><label class="block mb-1 font-medium">Or Upload File</label><input type="file" id="modal-catalogue-file-input" class="w-full p-2 border rounded-lg" accept="application/pdf,image/*" /></div>
                  `;
                  modalFooter.innerHTML = `<button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Changes</button>`;
                  openModal();
@@ -1841,6 +1926,37 @@ const getLastQuarterPoints = (partner) => {
                     <button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button>
                     <button type="submit" class="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold">Confirm & Reset</button>`;
                 openModal();
+                // Wire catalogue file input to read file as data URL and place into file input
+                const catFileInput = document.getElementById('modal-catalogue-file-input');
+                catFileInput?.addEventListener('change', async (ev) => {
+                    const file = ev.target.files && ev.target.files[0];
+                    if (!file) return;
+                    const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB
+                    if (file.size > MAX_RAW_BYTES) {
+                        showToast('File too large. Maximum allowed size is 2 MB.', true);
+                        return;
+                    }
+                    try {
+                        if (file.type.startsWith('image/')) {
+                            showToast('Compressing catalogue image...');
+                            const compressedDataUrl = await compressImageFile(file, 1000000);
+                            document.getElementById('modal-catalogue-file').value = compressedDataUrl;
+                            showToast('Catalogue image uploaded and compressed.');
+                        } else {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                const result = reader.result;
+                                if (typeof result === 'string') {
+                                    document.getElementById('modal-catalogue-file').value = result;
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showToast('Failed to process catalogue file. Please try a different file.', true);
+                    }
+                });
             };
             
             // --- PARTNER DETAIL MODAL ---
@@ -2243,28 +2359,75 @@ document.getElementById('logout-button').addEventListener('click', () => {
                     showToast('Partner added successfully! Edit their profile for more details.');
                 } else if(entity === 'partner') {
                     const portfolioRaw = document.getElementById('modal-partner-portfolio').value;
-                    const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
                     const portfolio = portfolioRaw.split('\n').map(line => {
                         const parts = line.split('|');
                         if (parts.length < 2) return null;
                         const projectName = parts.slice(0, -1).join('|').trim();
-                        const url = parts[parts.length - 1].trim();
-                        if (projectName && url && urlRegex.test(url)) {
-                            return { projectName, url };
+                        let url = parts[parts.length - 1].trim();
+                        if (!projectName || !url) return null;
+                        // If protocol missing, assume https://
+                        if (!/^https?:\/\//i.test(url)) {
+                            url = 'https://' + url;
                         }
-                        return null;
+                        // Basic validation: must contain a dot (domain-like)
+                        if (!/[\w-]+\.[\w.-]+/.test(url)) return null;
+                        return { projectName, url };
                     }).filter(Boolean);
-                    
-                    const newPoints = parseInt(document.getElementById('modal-partner-points').value);
-                    const partnerData = {
-                        name: document.getElementById('modal-partner-name').value, firm: document.getElementById('modal-partner-firm').value, city: document.getElementById('modal-partner-city').value, type: document.getElementById('modal-partner-type').value, photo: document.getElementById('modal-partner-photo').value, experience: document.getElementById('modal-partner-experience').value, phone: document.getElementById('modal-partner-phone').value, email: document.getElementById('modal-partner-email').value, website: document.getElementById('modal-partner-website').value, instagram: document.getElementById('modal-partner-instagram').value, points: newPoints, referrals: parseInt(document.getElementById('modal-partner-referrals').value), verified: document.getElementById('modal-partner-verified').checked, isNew: document.getElementById('modal-partner-isNew').checked, featured: document.getElementById('modal-partner-featured').checked, portfolio,
-                        elite: newPoints > 15000
+
+                    // Check for a contribution entered in the modal and calculate points
+                    const contributionAmount = parseInt(document.getElementById('modal-contribution-amount').value) || 0;
+                    const contributionAdvanced = document.getElementById('modal-advanced-payment').checked;
+                    const contributionMulti = document.getElementById('modal-plus-5-clients').checked;
+                    const newContribution = contributionAmount > 0 ? (() => {
+                        const pts = calculatePoints(contributionAmount, contributionAdvanced, contributionMulti);
+                        return {
+                            amount: contributionAmount,
+                            date: new Date().toISOString().split('T')[0],
+                            basePoints: pts.basePoints,
+                            bonusPoints: pts.bonusPoints,
+                            totalPoints: pts.totalPoints,
+                            isAdvancePayment: contributionAdvanced,
+                            isMultipleClients: contributionMulti
+                        };
+                    })() : null;
+
+                    // Build partner payload from modal fields
+                    const partnerPayload = {
+                        name: document.getElementById('modal-partner-name').value,
+                        firm: document.getElementById('modal-partner-firm').value,
+                        city: document.getElementById('modal-partner-city').value,
+                        type: document.getElementById('modal-partner-type').value,
+                        photo: document.getElementById('modal-partner-photo').value,
+                        experience: document.getElementById('modal-partner-experience').value,
+                        phone: document.getElementById('modal-partner-phone').value,
+                        email: document.getElementById('modal-partner-email').value,
+                        website: document.getElementById('modal-partner-website').value,
+                        instagram: document.getElementById('modal-partner-instagram').value,
+                        referrals: parseInt(document.getElementById('modal-partner-referrals').value) || 0,
+                        verified: document.getElementById('modal-partner-verified').checked,
+                        isNew: document.getElementById('modal-partner-isNew').checked,
+                        featured: document.getElementById('modal-partner-featured').checked,
+                        portfolio,
                     };
-                    if(id) {
+
+                    if (id) {
+                        // Update existing partner and append any new contribution
                         const partnerIndex = partners.findIndex(p => p.id === id);
-                        partners[partnerIndex] = { ...partners[partnerIndex], ...partnerData };
+                        if (partnerIndex > -1) {
+                            const existing = partners[partnerIndex];
+                            const updatedContributions = Array.isArray(existing.contributions) ? [...existing.contributions] : [];
+                            let updatedPoints = existing.points || 0;
+                            if (newContribution) {
+                                updatedContributions.push(newContribution);
+                                updatedPoints += newContribution.totalPoints;
+                            }
+                            partners[partnerIndex] = { ...existing, ...partnerPayload, contributions: updatedContributions, points: updatedPoints, elite: updatedPoints > 15000 };
+                        }
                     } else {
-                        partners.push({ ...partnerData, id: Date.now(), history: [], contributions: [], referrals: 0 });
+                        // New partner: initialize contributions and points (include any contribution entered)
+                        const initialContributions = newContribution ? [newContribution] : [];
+                        const initialPoints = (newContribution ? newContribution.totalPoints : 0);
+                        partners.push({ ...partnerPayload, id: Date.now(), history: [], contributions: initialContributions, referrals: partnerPayload.referrals || 0, points: initialPoints, elite: initialPoints > 15000 });
                     }
                     renderAdminPartners();
                 } else if(entity === 'podcast') {
