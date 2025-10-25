@@ -1,0 +1,2291 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jirawala Axis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #1e3a8a; /* A deep blue */
+            --secondary-color: #FF4500; /* OrangeRed */
+        }
+        body {
+            font-family: 'League Spartan', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--secondary-color);
+            transition: width 0.3s;
+        }
+        .nav-link.active, .nav-link:hover {
+            color: var(--primary-color);
+        }
+        .nav-link.active::after, .nav-link:hover::after {
+            width: 100%;
+        }
+        .page, .admin-panel {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page.active, .admin-panel.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            transition: background-color 0.3s;
+            font-weight: 700;
+        }
+        .btn-primary:hover {
+            background-color: #1c3172;
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            transition: background-color 0.3s;
+            font-weight: 700;
+        }
+        .btn-secondary:hover {
+            background-color: #cc3700;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .admin-nav-btn {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+        .admin-nav-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #admin-modal, #partner-detail-modal {
+            background-color: rgba(0,0,0,0.5);
+        }
+        #toast {
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s linear;
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        #podcast-partner-suggestions {
+            position: absolute;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            width: 100%;
+            z-index: 10;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .filter-btn-container button {
+            background-color: transparent;
+            color: #475569;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            border-radius: 0.375rem; /* rounded-md */
+        }
+        .filter-btn-container button:hover {
+            background-color: rgba(255, 255, 255, 0.6);
+            color: var(--primary-color);
+        }
+        .filter-btn-container button.active {
+            background-color: white;
+            color: var(--primary-color);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        h1, h2, h3 {
+            font-weight: 800;
+        }
+        .hero-text {
+             text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+        }
+        .hero-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            opacity: 0.6;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-33.33%); }
+        }
+        .animate-marquee {
+            animation: marquee 25s linear infinite;
+            display: inline-block;
+            white-space: nowrap;
+            will-change: transform;
+        }
+        #hero-ticker-container {
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            font-weight: 500;
+        }
+        #hero-ticker-text {
+            padding: 8px 0;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-3">
+                <img src="./Jirwala Logo.png" alt="Jirawala Axis Logo" class="h-10 w-10 rounded-md">
+                <div>
+                    <span class="text-2xl font-bold" style="color: orangered;">Jirawala Axis</span>
+                    <p class="text-xs text-gray-500 font-semibold tracking-wide -mt-1">Authorised Distributor for Ozone</p>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center space-x-8 font-semibold">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#portfolio" class="nav-link">Partners</a>
+                <a href="#leaderboard" class="nav-link">Leaderboard</a>
+                <a href="#catalogues" class="nav-link">Catalogues</a>
+                <a href="#podcasts" class="nav-link">Podcasts</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <a href="#admin" class="hidden md:inline-block px-4 py-2 rounded-lg btn-primary">Admin Login</a>
+            <button id="mobile-menu-button" class="md:hidden">
+                <i data-lucide="menu"></i>
+            </button>
+        </nav>
+         <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-2">
+            <a href="#home" class="block py-2 nav-link mobile-nav-link active">Home</a>
+            <a href="#portfolio" class="block py-2 nav-link mobile-nav-link">Partners</a>
+            <a href="#leaderboard" class="block py-2 nav-link mobile-nav-link">Leaderboard</a>
+            <a href="#catalogues" class="block py-2 nav-link mobile-nav-link">Catalogues</a>
+            <a href="#podcasts" class="block py-2 nav-link mobile-nav-link">Podcasts</a>
+            <a href="#contact" class="block py-2 nav-link mobile-nav-link">Contact</a>
+            <a href="#admin" class="block mt-4 py-2 px-4 rounded-lg btn-primary text-center">Admin Login</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Page 1: Home -->
+        <section id="home" class="page active">
+            <!-- Hero Section -->
+            <div class="h-[70vh] w-full relative overflow-hidden bg-gray-900">
+                <video autoplay loop muted playsinline class="hero-video">
+                     <source src="./Video-488.mp4" type="video/mp4">
+                     Your browser does not support the video tag.
+                </video>
+                <div class="relative z-20 flex flex-col items-center justify-center h-full text-center text-white px-4">
+                    <h1 class="text-4xl md:text-6xl font-extrabold leading-tight hero-text">Jirawala Axis</h1>
+                    <p class="mt-4 text-lg md:text-xl max-w-2xl hero-text">Supplying premium hardware and materials to bring architectural and design dreams to life.</p>
+                </div>
+                <div id="hero-ticker-container" class="absolute bottom-0 left-0 w-full bg-black/50 backdrop-blur-sm overflow-hidden py-3 text-white text-sm font-semibold whitespace-nowrap z-20">
+                    <div id="hero-ticker-text" class="animate-marquee"></div>
+                </div>
+            </div>
+
+            <!-- About Us & Contact Details -->
+            <div class="container mx-auto px-4 py-8 md:py-12">
+                <div class="grid md:grid-cols-2 gap-6 md:gap-8 items-start">
+                    <div class="card p-4 md:p-6">
+                        <h3 class="text-lg md:text-xl font-bold mb-4 border-b pb-3">About Jirawala Axis</h3>
+                        <div class="space-y-4 md:space-y-6">
+                            <div class="flex items-start gap-4">
+                                <i data-lucide="building" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i>
+                                <div>
+                                    <strong class="block mb-2">Who We Are</strong>
+                                    <p class="text-gray-600">We are a leading supplier of high-quality architectural hardware, plywood, and decorative laminates.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <i data-lucide="target" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i>
+                                <div>
+                                    <strong class="block mb-2">Our Mission</strong>
+                                    <p class="text-gray-600">With a commitment to excellence and a passion for design, we empower architects, designers, and craftsmen to create spaces that inspire.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <i data-lucide="badge-check" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i>
+                                <div>
+                                    <strong class="block mb-2">Our Promise</strong>
+                                    <p class="text-gray-600">Our curated collection is built on quality, durability, and aesthetic appeal.</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-4 pt-4 border-t">
+                                <a href="#contact" class="px-6 py-3 rounded-lg btn-primary">Get a Quote</a>
+                                <a href="https://wa.me/910000000000" target="_blank" class="px-6 py-3 rounded-lg bg-[#25D366] text-white font-bold hover:bg-[#20b958] transition flex items-center gap-2">
+                                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                    WhatsApp
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card p-8">
+                        <h3 class="text-xl font-bold mb-6 border-b pb-4">Contact & Supply Information</h3>
+                        <div id="contact-info-public" class="space-y-4 text-gray-700">
+                            <!-- Contact info rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page 2: Partner Portfolio -->
+        <section id="portfolio" class="page py-8 md:py-12 bg-white">
+             <div class="container mx-auto px-4">
+                <div class="text-center mb-6 md:mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold" style="color: var(--primary-color);">Partner Portfolio</h2>
+                    <p class="mt-1 text-base md:text-lg text-gray-600">Discover the architects, designers, and dealers partnering with Jirawala Axis.</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-col md:flex-row gap-3 mb-6">
+                    <div class="flex-grow flex space-x-1 bg-slate-200 p-1 rounded-lg filter-btn-container text-sm md:text-base">
+                        <button class="portfolio-filter-btn active w-full py-2 px-3" data-filter="All">All</button>
+                        <button class="portfolio-filter-btn w-full py-2 px-3" data-filter="Designer">Designers</button>
+                        <button class="portfolio-filter-btn w-full py-2 px-3" data-filter="Carpenter">Carpenters</button>
+                        <button class="portfolio-filter-btn w-full py-2 px-3" data-filter="Dealer">Dealers</button>
+                    </div>
+                    <input type="text" id="portfolio-search" placeholder="Search by name, firm, or city..." class="w-full md:w-72 py-2 px-3 text-sm md:text-base border rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <!-- Partner Cards Grid -->
+                <div id="partner-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+                    <!-- Partner cards will be injected here by JavaScript -->
+                </div>
+             </div>
+        </section>
+
+        <!-- Page 3: Leaderboard -->
+        <section id="leaderboard" class="page py-16">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold" style="color: var(--primary-color);">Partner Leaderboard</h2>
+                    <p class="mt-2 text-gray-600">Recognizing our top-performing partners for the current quarter.</p>
+                </div>
+                
+                 <!-- Leaderboard Filters -->
+                <div class="flex justify-center mb-12">
+                     <div class="flex-grow max-w-lg flex space-x-1 bg-slate-200 p-1 rounded-lg filter-btn-container">
+                        <button class="leaderboard-filter-btn active w-full py-2 px-4" data-filter="All">All</button>
+                        <button class="leaderboard-filter-btn w-full py-2 px-4" data-filter="Designer">Designers</button>
+                        <button class="leaderboard-filter-btn w-full py-2 px-4" data-filter="Carpenter">Carpenters</button>
+                        <button class="leaderboard-filter-btn w-full py-2 px-4" data-filter="Dealer">Dealers</button>
+                    </div>
+                </div>
+
+                <!-- Active Scheme Section -->
+                <div id="scheme-container" class="mb-12">
+                    <!-- Scheme info will be injected here by JS -->
+                </div>
+
+                <!-- Top 3 Honorees -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 text-center" id="top-performers-container">
+                    <!-- Top 3 cards will be dynamically inserted here -->
+                </div>
+
+                <!-- Full Leaderboard Table -->
+                <div class="card overflow-hidden">
+                    <div class="p-2 bg-gray-50 border-b font-semibold text-sm">Current Quarter Rankings</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 text-left text-xs text-gray-600">
+                                <tr>
+                                    <th class="p-2">Rank</th>
+                                    <th class="p-2">Partner</th>
+                                    <th class="p-2">City</th>
+                                    <th class="p-2">Type</th>
+                                    <th class="p-2">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-table-body" class="text-sm">
+                                <!-- Leaderboard rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page 4: Catalogues -->
+        <section id="catalogues" class="page py-16 bg-white">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold" style="color: var(--primary-color);">Our Catalogues</h2>
+                    <p class="mt-2 text-gray-600">Download our latest product catalogues and brochures.</p>
+                </div>
+                <div id="catalogue-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Catalogue items will be injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Page 5: Podcasts -->
+        <section id="podcasts" class="page py-16">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold" style="color: var(--primary-color);">Partner Podcasts</h2>
+                    <p class="mt-2 text-gray-600">Weekly conversations with the best minds in the industry.</p>
+                </div>
+                <div id="podcast-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Podcast cards will be injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Page 6: Get in touch -->
+        <section id="contact" class="page py-16 bg-white">
+             <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold" style="color: var(--primary-color);">Get In Touch</h2>
+                    <p class="mt-2 text-gray-600">Have a question or a project in mind? We'd love to hear from you.</p>
+                </div>
+                <div class="max-w-3xl mx-auto">
+                    <form id="public-contact-form" class="card p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block mb-1 font-medium">Full Name</label>
+                            <input type="text" id="name" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="email" class="block mb-1 font-medium">Email Address</label>
+                            <input type="email" id="email" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="md:col-span-2">
+                             <label for="subject" class="block mb-1 font-medium">Subject</label>
+                            <input type="text" id="subject" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="message" class="block mb-1 font-medium">Message</label>
+                            <textarea id="message" rows="5" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required></textarea>
+                        </div>
+                         <div class="md:col-span-2 text-right">
+                             <button type="submit" class="px-8 py-3 rounded-lg btn-primary">Send Message</button>
+                         </div>
+                    </form>
+                </div>
+             </div>
+        </section>
+
+        <!-- Page 7: Admin -->
+        <section id="admin" class="page py-16 min-h-screen">
+            <div class="container mx-auto px-6">
+                <!-- Admin Login Form -->
+                <div id="admin-login-form" class="max-w-lg mx-auto">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold" style="color: var(--primary-color);">Admin Access</h2>
+                    </div>
+                    <div class="card p-8">
+                        <form id="login-form" class="space-y-6">
+                            <div>
+                                <label for="username" class="block mb-1 font-medium">Username</label>
+                                <input type="text" id="username" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="password" class="block mb-1 font-medium">Password</label>
+                                <input type="password" id="password" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                             <p id="login-error" class="text-red-500 text-sm hidden">Invalid username or password.</p>
+                            <button type="submit" class="w-full px-6 py-3 rounded-lg btn-primary">Login</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Admin Dashboard (Hidden by default) -->
+                <div id="admin-dashboard" class="hidden">
+                    <div class="mb-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                        <h2 class="text-3xl font-bold" style="color: var(--primary-color);">Admin Dashboard</h2>
+                        <button id="logout-button" class="text-sm text-red-600 hover:underline font-semibold">Logout</button>
+                    </div>
+
+                    <!-- Quick Stats Bar -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm opacity-90">Total Partners</p>
+                                    <h3 class="text-2xl font-bold" id="stats-total-partners">0</h3>
+                                </div>
+                                <i data-lucide="users" class="w-8 h-8 opacity-50"></i>
+                            </div>
+                            <div class="text-xs mt-2 opacity-75" id="stats-partner-types"></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm opacity-90">Active Points</p>
+                                    <h3 class="text-2xl font-bold" id="stats-total-points">0</h3>
+                                </div>
+                                <i data-lucide="trophy" class="w-8 h-8 opacity-50"></i>
+                            </div>
+                            <div class="text-xs mt-2 opacity-75" id="stats-points-distribution"></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm opacity-90">Content Items</p>
+                                    <h3 class="text-2xl font-bold" id="stats-total-content">0</h3>
+                                </div>
+                                <i data-lucide="layers" class="w-8 h-8 opacity-50"></i>
+                            </div>
+                            <div class="text-xs mt-2 opacity-75" id="stats-content-breakdown"></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-4 rounded-xl">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm opacity-90">Quarter Progress</p>
+                                    <h3 class="text-2xl font-bold" id="stats-quarter-progress">0%</h3>
+                                </div>
+                                <i data-lucide="timer" class="w-8 h-8 opacity-50"></i>
+                            </div>
+                            <div class="text-xs mt-2 opacity-75" id="stats-quarter-dates"></div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Navigation with Search -->
+                    <div class="flex flex-col md:flex-row gap-4 mb-8">
+                        <div class="flex-shrink-0 flex flex-wrap md:flex-col gap-2 p-4 bg-gray-50 rounded-xl md:w-48">
+                            <button data-panel="partners" class="admin-nav-btn active w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
+                                <i data-lucide="users"></i> <span class="flex-grow text-left">Partners</span>
+                            </button>
+                            <button data-panel="points" class="admin-nav-btn w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
+                                <i data-lucide="star"></i> <span class="flex-grow text-left">Points</span>
+                            </button>
+                            <button data-panel="schemes" class="admin-nav-btn w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
+                                <i data-lucide="zap"></i> <span class="flex-grow text-left">Schemes</span>
+                            </button>
+                            <button data-panel="podcasts" class="admin-nav-btn w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
+                                <i data-lucide="mic"></i> <span class="flex-grow text-left">Podcasts</span>
+                            </button>
+                            <button data-panel="catalogues" class="admin-nav-btn w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
+                                <i data-lucide="book-open"></i> <span class="flex-grow text-left">Catalogues</span>
+                            </button>
+                            <button data-panel="finance" class="admin-nav-btn w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
+                                <i data-lucide="bar-chart-2"></i> <span class="flex-grow text-left">Finance</span>
+                            </button>
+                            <button data-panel="settings" class="admin-nav-btn w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
+                                <i data-lucide="settings"></i> <span class="flex-grow text-left">Settings</span>
+                            </button>
+                        </div>
+
+                        <!-- Admin Panels with Search -->
+                        <div class="flex-grow card">
+                        <!-- Manage Partners Panel -->
+                        <div id="admin-panel-partners" class="admin-panel active">
+                            <!-- Search and Filter Bar -->
+                            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                                <div class="flex-grow">
+                                    <div class="relative">
+                                        <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                        <input type="text" id="partner-search" placeholder="Search partners by name, firm, city..." class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 mt-2" id="partner-quick-filters">
+                                        <!-- Quick filter chips will be added here -->
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 flex gap-2">
+                                    <div class="relative group">
+                                        <button class="px-4 py-2 rounded-lg border hover:bg-gray-50 flex items-center gap-2">
+                                            <i data-lucide="filter"></i> Filter
+                                        </button>
+                                        <div class="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border p-4 hidden group-hover:block z-10 min-w-[200px]">
+                                            <div class="space-y-3">
+                                                <div>
+                                                    <label class="block text-sm font-medium mb-1">Partner Type</label>
+                                                    <select id="filter-type" class="w-full p-2 border rounded-md text-sm">
+                                                        <option value="">All Types</option>
+                                                        <option>Designer</option>
+                                                        <option>Carpenter</option>
+                                                        <option>Dealer</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium mb-1">Status</label>
+                                                    <select id="filter-status" class="w-full p-2 border rounded-md text-sm">
+                                                        <option value="">All Status</option>
+                                                        <option value="verified">Verified</option>
+                                                        <option value="elite">Elite</option>
+                                                        <option value="new">New</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium mb-1">Sort By</label>
+                                                    <select id="partner-sort" class="w-full p-2 border rounded-md text-sm">
+                                                        <option value="name">Name A-Z</option>
+                                                        <option value="points">Points (High-Low)</option>
+                                                        <option value="recent">Recently Added</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button id="add-partner-btn" class="btn-secondary px-4 py-2 rounded-lg flex items-center gap-2">
+                                        <i data-lucide="user-plus"></i> Add Partner
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Partner Cards Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="admin-partners-grid">
+                                <!-- Partner cards will be rendered here -->
+                            </div>
+
+                            <!-- Floating Action Button -->
+                            <button id="quick-add-partner" class="fixed bottom-6 right-6 bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 transition-colors z-50 flex items-center gap-2">
+                                <i data-lucide="plus"></i>
+                                <span class="text-sm font-semibold">Quick Add</span>
+                            </button>
+                        </div>
+
+                        <!-- Add Points Panel -->
+                        <div id="admin-panel-points" class="admin-panel max-w-lg mx-auto">
+                            <h3 class="text-xl font-bold mb-4">Add Partner Contribution</h3>
+                            <form id="add-points-form" class="space-y-4">
+                                <!-- JS Populated -->
+                            </form>
+                        </div>
+                        
+                        <!-- Manage Schemes Panel -->
+                        <div id="admin-panel-schemes" class="admin-panel max-w-lg mx-auto">
+                           <h3 class="text-xl font-bold mb-4">Manage Quarterly Scheme</h3>
+                            <form id="scheme-form" class="space-y-4">
+                                <!-- JS Populated -->
+                            </form>
+                        </div>
+                        
+                        <!-- Manage Podcasts Panel -->
+                        <div id="admin-panel-podcasts" class="admin-panel">
+                            <div class="flex justify-between items-center mb-4">
+                               <h3 class="text-xl font-bold">Manage Podcasts</h3>
+                               <button id="add-podcast-btn" class="btn-secondary px-4 py-2 rounded-lg text-sm">Add New Podcast</button>
+                            </div>
+                            <div id="admin-podcasts-table-container" class="overflow-x-auto">
+                                <!-- JS Populated -->
+                            </div>
+                        </div>
+
+                        <!-- Manage Catalogues Panel -->
+                        <div id="admin-panel-catalogues" class="admin-panel">
+                           <div class="flex justify-between items-center mb-4">
+                               <h3 class="text-xl font-bold">Manage Catalogues</h3>
+                               <button id="add-catalogue-btn" class="btn-secondary px-4 py-2 rounded-lg text-sm">Add New Catalogue</button>
+                           </div>
+                           <div id="admin-catalogues-table-container" class="overflow-x-auto">
+                                <!-- JS Populated -->
+                            </div>
+                        </div>
+
+                        <!-- Financial Dashboard Panel -->
+                        <div id="admin-panel-finance" class="admin-panel">
+                            <!-- Top Stats -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                <div class="bg-white p-6 rounded-xl border">
+                                    <p class="text-sm text-gray-500 mb-1">Total Contributions</p>
+                                    <h3 class="text-2xl font-bold" id="finance-total-contributions">₹0</h3>
+                                    <p class="text-xs text-gray-400 mt-2" id="finance-contrib-change">vs last month</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border">
+                                    <p class="text-sm text-gray-500 mb-1">This Month</p>
+                                    <h3 class="text-2xl font-bold" id="finance-current-month">₹0</h3>
+                                    <p class="text-xs text-gray-400 mt-2" id="finance-month-growth">growth</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border">
+                                    <p class="text-sm text-gray-500 mb-1">Average Order</p>
+                                    <h3 class="text-2xl font-bold" id="finance-avg-order">₹0</h3>
+                                    <p class="text-xs text-gray-400 mt-2" id="finance-order-count">total orders</p>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl border">
+                                    <p class="text-sm text-gray-500 mb-1">Quarterly Target</p>
+                                    <h3 class="text-2xl font-bold" id="finance-target-progress">0%</h3>
+                                    <p class="text-xs text-gray-400 mt-2" id="finance-target-remaining">remaining</p>
+                                </div>
+                            </div>
+
+                            <!-- Monthly Stats & Top Contributors -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                                <!-- Monthly Statistics -->
+                                <div class="lg:col-span-2 bg-white p-6 rounded-xl border">
+                                    <h3 class="font-semibold mb-4">Monthly Statistics</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="p-4 bg-gray-50 rounded-lg">
+                                            <p class="text-sm text-gray-600">Most Active Partner</p>
+                                            <p class="font-bold text-lg mt-1" id="most-active-partner">-</p>
+                                            <p class="text-xs text-gray-500 mt-1" id="most-active-contributions">-</p>
+                                        </div>
+                                        <div class="p-4 bg-gray-50 rounded-lg">
+                                            <p class="text-sm text-gray-600">New Partners</p>
+                                            <p class="font-bold text-lg mt-1" id="new-partners-count">0</p>
+                                            <p class="text-xs text-gray-500 mt-1">this month</p>
+                                        </div>
+                                        <div class="p-4 bg-gray-50 rounded-lg">
+                                            <p class="text-sm text-gray-600">Total Transactions</p>
+                                            <p class="font-bold text-lg mt-1" id="transactions-count">0</p>
+                                            <p class="text-xs text-gray-500 mt-1">this month</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Top Contributors -->
+                                <div class="bg-white p-6 rounded-xl border">
+                                    <h3 class="font-semibold mb-4">Top Contributors</h3>
+                                    <div class="space-y-4" id="top-contributors-list">
+                                        <!-- Will be populated by JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Transactions -->
+                            <div class="bg-white rounded-xl border">
+                                <div class="p-4 border-b flex justify-between items-center">
+                                    <h3 class="font-semibold">Recent Transactions</h3>
+                                    <button id="export-transactions" class="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                                        <i data-lucide="download" class="w-4 h-4"></i> Export
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="text-xs text-gray-500 border-b">
+                                            <tr>
+                                                <th class="p-4 text-left">Date</th>
+                                                <th class="p-4 text-left">Partner</th>
+                                                <th class="p-4 text-left">Amount</th>
+                                                <th class="p-4 text-left">Points</th>
+                                                <th class="p-4 text-left">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recent-transactions" class="text-sm">
+                                            <!-- Will be populated by JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Site Settings Panel -->
+                        <div id="admin-panel-settings" class="admin-panel">
+                            <h3 class="text-xl font-bold mb-6">Site Settings</h3>
+                            <div class="space-y-8">
+                                <form id="contact-details-form" class="space-y-4 p-6 border rounded-lg">
+                                    <h4 class="font-semibold text-lg">Contact Information</h4>
+                                    <div><label class="block text-sm font-medium">Phone Number</label><input type="text" id="setting-phone" class="w-full p-2 border rounded-md mt-1"></div>
+                                    <div><label class="block text-sm font-medium">Email Address</label><input type="email" id="setting-email" class="w-full p-2 border rounded-md mt-1"></div>
+                                    <div><label class="block text-sm font-medium">Address</label><input type="text" id="setting-address" class="w-full p-2 border rounded-md mt-1"></div>
+                                    <div><label class="block text-sm font-medium">What We Supply</label><textarea id="setting-supply" rows="3" class="w-full p-2 border rounded-md mt-1"></textarea></div>
+                                    <button type="submit" class="btn-secondary px-5 py-2 rounded-lg">Save Contact Info</button>
+                                </form>
+                                 <form id="quarter-dates-form" class="space-y-4 p-6 border rounded-lg">
+                                    <h4 class="font-semibold text-lg">Quarter Management</h4>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div><label class="block text-sm font-medium">Quarter Start Date</label><input type="date" id="setting-quarter-start" class="w-full p-2 border rounded-md mt-1"></div>
+                                        <div><label class="block text-sm font-medium">Quarter End Date</label><input type="date" id="setting-quarter-end" class="w-full p-2 border rounded-md mt-1"></div>
+                                    </div>
+                                    <button type="submit" class="btn-secondary px-5 py-2 rounded-lg">Save Dates</button>
+                                </form>
+                                <div class="p-6 border-2 border-red-200 rounded-lg">
+                                    <h4 class="text-lg font-bold text-red-700">Danger Zone</h4>
+                                    <div class="mt-4 flex justify-between items-center">
+                                        <div>
+                                            <p class="font-semibold">Reset All Quarterly Points</p>
+                                            <p class="text-sm text-gray-600">This will archive current points and reset the scoreboard to 0 for the new quarter.</p>
+                                        </div>
+                                        <button id="reset-points-button" class="bg-red-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-700 transition">Reset Points</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Generic Admin Modal -->
+    <div id="admin-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <form id="modal-form" class="p-8">
+                <h2 id="modal-title" class="text-2xl font-bold mb-6"></h2>
+                <div id="modal-content" class="space-y-4">
+                    <!-- Dynamic form content goes here -->
+                </div>
+                <div id="modal-footer" class="mt-8 flex justify-between items-center">
+                    <!-- Dynamic buttons go here -->
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Partner Detail Modal -->
+    <div id="partner-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] relative">
+            <button id="close-detail-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+            <div id="partner-detail-content" class="overflow-y-auto max-h-[90vh] p-8 md:p-12">
+                <!-- Partner details will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Points History Modal -->
+    <div id="points-history-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold" id="points-history-title">Points History</h3>
+                    <p class="text-sm text-gray-500" id="points-history-subtitle"></p>
+                </div>
+                <button id="close-points-history" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                <!-- Points Summary -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">Total Points</p>
+                        <p class="text-2xl font-bold" id="points-total"></p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">Total Contributions</p>
+                        <p class="text-2xl font-bold" id="points-contributions"></p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">Bonus Points</p>
+                        <p class="text-2xl font-bold" id="points-bonus"></p>
+                    </div>
+                </div>
+
+                <!-- Points Timeline -->
+                <div class="space-y-6" id="points-timeline">
+                    <!-- Timeline content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-lg text-white"></div>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2024 Jirawala Axis. All Rights Reserved.</p>
+            <p class="text-sm text-gray-400 mt-2">Designed for partners in progress.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DATA & CONFIG ---
+            const initialData = {
+                partners: [
+                    { id: 1, name: 'Aarav Sharma', firm: 'Innovate Designs', city: 'Aurangabad', type: 'Designer', points: 15600, history: [{quarter: 'Q3 2025', points: 14500}], verified: true, elite: true, isNew: false, featured: true, website: 'https://example.com', phone: '9876543210', email: 'aarav@innovate.com', photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1887&auto=format&fit=crop', instagram: 'aarav.designs', experience: '15+ years of experience in residential and commercial interior design, specializing in sustainable materials.', portfolio: [{ projectName: 'Modern Villa, Pune', url: '#' },{ projectName: 'Corporate Office Interior', url: '#' },{ projectName: 'Luxury Apartment, Mumbai', url: '#' },{ projectName: 'Retail Store Concept', url: '#' }], contributions: [{amount: 50000, date: '2025-08-15'}, {amount: 60000, date: '2025-09-20'}], referrals: 6 },
+                    { id: 2, name: 'Priya Patel', firm: 'BuildRight Dealers', city: 'Pune', type: 'Dealer', points: 18200, history: [{quarter: 'Q3 2025', points: 19000}], verified: true, elite: true, isNew: false, featured: false, website: 'https://example.com', phone: '9876543211', email: 'priya@buildright.com', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop', instagram: 'priya.builds', experience: 'Founder of BuildRight Dealers, with over a decade of experience in sourcing and distributing high-quality construction materials.', portfolio: [{ projectName: 'Greenwood Residential Project', url: '#' },{ projectName: 'Skyline Commercial Complex', url: '#' }], contributions: [], referrals: 2 },
+                    { id: 3, name: 'Rohan Verma', firm: 'Verma Carpentry', city: 'Nashik', type: 'Carpenter', points: 12100, history: [{quarter: 'Q3 2025', points: 9800}], verified: true, elite: false, isNew: true, featured: false, website: '#', phone: '9876543212', email: 'rohan@verma.com', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop', instagram: '', experience: 'A master craftsman with 20 years of experience in bespoke furniture and detailed woodwork.', portfolio: [{ projectName: 'Custom Kitchen Cabinetry', url: '#' }], contributions: [{amount: 10000, date: '2025-10-01'}], referrals: 0 },
+                    { id: 4, name: 'Sunita Gupta', firm: 'Creative Spaces', city: 'Pune', type: 'Designer', points: 9800, history: [{quarter: 'Q3 2025', points: 8500}], verified: true, elite: false, isNew: false, featured: false, website: '#', phone: '9876543213', email: 'sunita@creative.com', photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop', instagram: 'sunita.spaces', experience: 'Specializes in minimalist and functional design for modern urban living.', portfolio: [{ projectName: 'Boutique Hotel Lobby', url: '#' },{ projectName: 'Minimalist Home Design', url: '#' },{ projectName: 'Cafe Ambiance Project', url: '#' }], contributions: [], referrals: 0 },
+                    { id: 5, name: 'Anil Kumar', firm: 'Kumar & Sons Hardware', city: 'Aurangabad', type: 'Dealer', points: 26500, history: [{quarter: 'Q3 2025', points: 21000}], verified: true, elite: true, isNew: false, featured: true, website: '#', phone: '9876543214', email: 'anil@kumar.com', photo: '', experience: 'Third-generation hardware specialist, known for an extensive inventory and expert advice.', portfolio: [], contributions: [{amount: 265000, date: '2025-10-05'}], referrals: 1 },
+                    { id: 6, name: 'Suresh Pawar', firm: 'Fine Finish Carpentry', city: 'Mumbai', type: 'Carpenter', points: 8500, history: [], verified: false, elite: false, isNew: true, featured: false, website: '#', phone: '9876543215', email: 'suresh@finefinish.com', photo: '', instagram: 'suresh.carpentry', experience: 'New partner specializing in high-end finishing and custom installations.', portfolio: [{ projectName: 'Hardwood Flooring Installation', url: '#' }], contributions: [], referrals: 0 },
+                ],
+                schemes: [ { title: "Q4 Supercharged Scheme!", description: "Earn double points on all contributions over ₹50,000 this quarter. Ends Dec 31st.", active: true } ],
+                catalogues: [ {id: 1, title: 'Laminate Collection 2024', file: '#'}, {id: 2, title: 'Plywood Grade Guide', file: '#'} ],
+                podcasts: [ { id: 1, title: 'The Future of Urban Design', partnerName: 'Aarav Sharma', videoId: 'dQw4w9WgXcQ' }, {id: 2, title: 'Material Sourcing Secrets', partnerName: 'Priya Patel', videoId: 'dQw4w9WgXcQ'} ],
+                contactDetails: { supply: "Architectural Hardware, Premium Plywood, Decorative Laminates, Adhesives, and Tools.", phone: "+91 12345 67890", address: "123 Axis Tower, M.G. Road, Pune, Maharashtra, 411001", email: "contact@jirawalaaxis.com" },
+                quarterStartDate: '2025-10-01',
+                quarterEndDate: '2025-12-31',
+            };
+
+            let partners = []; let schemes = []; let catalogues = []; let podcasts = []; let contactDetails = {};
+            let quarterStartDate, quarterEndDate;
+            
+            // --- STATE ---
+            let currentFilter = 'All';
+            let currentLeaderboardFilter = 'All';
+            let searchTerm = '';
+            
+            // --- SELECTORS ---
+            const pages = document.querySelectorAll('.page');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            // --- HELPERS & LOGIC ---
+            const saveDataToLocalStorage = () => {
+                const appData = { partners, schemes, catalogues, podcasts, contactDetails, quarterStartDate, quarterEndDate };
+                localStorage.setItem('jirawalaAxisData', JSON.stringify(appData));
+            };
+
+            const loadDataFromLocalStorage = () => {
+                const savedData = localStorage.getItem('jirawalaAxisData');
+                if (savedData) {
+                    const appData = JSON.parse(savedData);
+                    partners = appData.partners || initialData.partners;
+                    schemes = appData.schemes || initialData.schemes;
+                    catalogues = appData.catalogues || initialData.catalogues;
+                    podcasts = appData.podcasts || initialData.podcasts;
+                    contactDetails = appData.contactDetails || initialData.contactDetails;
+                    quarterStartDate = appData.quarterStartDate || initialData.quarterStartDate;
+                    quarterEndDate = appData.quarterEndDate || initialData.quarterEndDate;
+                } else {
+                    // Correctly assign to local variables, not the window object
+                    partners = initialData.partners;
+                    schemes = initialData.schemes;
+                    catalogues = initialData.catalogues;
+                    podcasts = initialData.podcasts;
+                    contactDetails = initialData.contactDetails;
+                    quarterStartDate = initialData.quarterStartDate;
+                    quarterEndDate = initialData.quarterEndDate;
+                }
+            };
+            
+            const hasContributionsForMonths = (partner, monthCount) => {
+                if (!partner.contributions || partner.contributions.length === 0) return false;
+                const uniqueMonths = new Set(partner.contributions.map(c => new Date(c.date).getMonth()));
+                return uniqueMonths.size >= monthCount;
+            };
+
+            const achievements = [
+                { id: 'first-blood', name: 'First Contribution', icon: '🎯', condition: (p) => p.contributions.length >= 1 },
+                { id: 'century', name: 'Century Club', icon: '💯', condition: (p) => p.points >= 10000 },
+                { id: 'consistency-king', name: 'Consistent Contributor', icon: '📅', condition: (p) => hasContributionsForMonths(p, 3) },
+                { id: 'mega-dealer', name: 'Mega Dealer', icon: '🏆', condition: (p) => p.type === 'Dealer' && p.points >= 25000 },
+                { id: 'referral-master', name: 'Referral Master', icon: '🤝', condition: (p) => p.referrals >= 5 },
+            ];
+            
+            const getPartnerAchievements = (partner) => achievements.filter(ach => ach.condition(partner));
+
+            const getCurrentQuarter = () => {
+                const now = new Date();
+                const quarter = Math.floor(now.getMonth() / 3) + 1;
+                return `Q${quarter} ${now.getFullYear()}`;
+            };
+
+            const getLastQuarterPoints = (partner) => {
+                if (partner.history && partner.history.length > 0) {
+                    return partner.history[partner.history.length - 1].points;
+                }
+                return 0;
+            };
+
+            // --- PAGE NAVIGATION (SPA LOGIC) ---
+            const showPage = (hash) => {
+                const targetId = hash ? hash.substring(1) : 'home';
+                pages.forEach(page => {
+                    if (page.id === targetId) {
+                        page.classList.add('active');
+                        page.style.display = 'block';
+                        // Special handling for admin page
+                        if (targetId === 'admin') {
+                            const dashboard = document.getElementById('admin-dashboard');
+                            const loginForm = document.getElementById('admin-login-form');
+                            if (dashboard && loginForm) {
+                                loginForm.classList.remove('hidden');
+                                dashboard.classList.add('hidden');
+                            }
+                        }
+                    } else {
+                        page.classList.remove('active');
+                        page.style.display = 'none';
+                    }
+                });
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === `#${targetId}`) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+                window.scrollTo(0, 0);
+            };
+
+            window.addEventListener('hashchange', () => showPage(window.location.hash));
+            
+            // Handle all navigation links (both mobile and desktop)
+            const allNavLinks = [...document.querySelectorAll('.nav-link'), ...document.querySelectorAll('.mobile-nav-link')];
+            allNavLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const href = this.getAttribute('href');
+                    window.location.hash = href;
+                    showPage(href);
+                    if(!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuButton.querySelector('i');
+                        if (icon) {
+                            icon.setAttribute('data-lucide', 'menu');
+                            lucide.createIcons();
+                        }
+                    }
+                });
+            });
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                const icon = mobileMenuButton.querySelector('i');
+                if (icon) {
+                    if (mobileMenu.classList.contains('hidden')) {
+                        icon.setAttribute('data-lucide', 'menu');
+                    } else {
+                        icon.setAttribute('data-lucide', 'x');
+                    }
+                    lucide.createIcons();
+                }
+            });
+            
+            // --- RENDER FUNCTIONS ---
+            const renderPartners = () => {
+                const container = document.getElementById('partner-cards-container');
+                if (!container) return;
+                
+                const filteredPartners = partners
+                    .filter(p => currentFilter === 'All' || p.type === currentFilter)
+                    .filter(p => [p.name, p.firm, p.city].some(s => s.toLowerCase().includes(searchTerm)))
+                    .sort((a, b) => b.points - a.points);
+                
+                container.innerHTML = filteredPartners.map(p => {
+                    const profileImage = p.photo 
+                        ? `<img src="${p.photo}" alt="${p.name}" class="h-full w-full object-cover">`
+                        : `<div class="h-full w-full flex items-center justify-center font-bold text-4xl text-white" style="background-color: var(--primary-color);">${p.name.charAt(0)}</div>`;
+
+                    const portfolioLinks = p.portfolio && p.portfolio.length > 0 ? `
+                        <div class="flex-grow space-y-2 max-h-28 overflow-y-auto pr-2 mt-4">
+                            <h4 class="font-semibold text-sm text-gray-500 border-b pb-1 mb-2">Portfolio</h4>
+                            ${p.portfolio.map(item => `<a href="${item.url}" target="_blank" class="block text-sm text-blue-600 hover:underline truncate" title="${item.projectName}">${item.projectName}</a>`).join('')}
+                        </div>
+                    ` : `<div class="flex-grow mt-4"><div class="text-sm text-gray-400 text-center pt-8">No portfolio items.</div></div>`;
+
+                    return `
+                    <div class="card flex flex-col overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" data-id="${p.id}">
+                        <div class="h-28 sm:h-24 bg-gray-200 flex-shrink-0">
+                            ${profileImage}
+                        </div>
+                        <div class="p-3 sm:p-3 flex flex-col flex-grow">
+                            <div>
+                                <h3 class="font-bold text-base sm:text-sm truncate" title="${p.name}">${p.name}</h3>
+                                <p class="text-sm sm:text-xs text-gray-600 truncate" title="${p.firm} - ${p.city}">${p.firm} - ${p.city}</p>
+                            </div>
+                            
+                            <div class="mt-2 mb-2 flex items-center gap-1.5 flex-wrap">
+                                ${p.verified ? `<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs sm:text-[11px] font-medium">✓</span>` : ''}
+                                ${p.elite ? `<span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs sm:text-[11px] font-medium">★</span>` : ''}
+                                ${p.isNew ? `<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs sm:text-[11px] font-medium">New</span>` : ''}
+                                <span class="ml-auto text-sm sm:text-xs font-bold" style="color: var(--secondary-color);">${p.points.toLocaleString()} pts</span>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-3 text-gray-400 mt-auto pt-2 border-t">
+                                ${p.website ? `<a href="${p.website}" target="_blank" class="hover:text-blue-600"><i data-lucide="globe" class="w-5 h-5 sm:w-4 sm:h-4"></i></a>` : ''}
+                                ${p.phone ? `<a href="tel:${p.phone}" class="hover:text-blue-600"><i data-lucide="phone" class="w-5 h-5 sm:w-4 sm:h-4"></i></a>` : ''}
+                                ${p.email ? `<a href="mailto:${p.email}" class="hover:text-blue-600"><i data-lucide="mail" class="w-5 h-5 sm:w-4 sm:h-4"></i></a>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `}).join('');
+                lucide.createIcons();
+            };
+
+            const renderLeaderboard = () => {
+                const filteredForLeaderboard = partners
+                    .filter(p => currentLeaderboardFilter === 'All' || p.type === currentLeaderboardFilter);
+
+                const sortedPartners = [...filteredForLeaderboard].sort((a, b) => b.points - a.points);
+                const topPerformersContainer = document.getElementById('top-performers-container');
+                const tableBody = document.getElementById('leaderboard-table-body');
+                if (!topPerformersContainer || !tableBody) return;
+                
+                const medalColors = [
+                    { border: 'border-yellow-400', shadow: 'shadow-yellow-200', text: 'text-yellow-600', icon: 'trophy' },
+                    { border: 'border-gray-400', shadow: 'shadow-gray-200', text: 'text-gray-600', icon: 'award' },
+                    { border: 'border-amber-600', shadow: 'shadow-amber-200', text: 'text-amber-700', icon: 'medal' },
+                ];
+                
+                topPerformersContainer.innerHTML = sortedPartners.slice(0, 3).map((p, i) => `
+                    <div class="card p-4 border-2 ${medalColors[i].border} shadow ${medalColors[i].shadow}">
+                        <div class="flex items-center gap-4">
+                            <i data-lucide="${medalColors[i].icon}" class="w-8 h-8 ${medalColors[i].text}"></i>
+                            <div class="flex-grow">
+                                <p class="font-bold text-sm">${i + 1}${i === 0 ? 'st' : i === 1 ? 'nd' : 'rd'} Place</p>
+                                <h3 class="font-bold truncate" title="${p.name}">${p.name}</h3>
+                                <p class="text-xs text-gray-600">${p.city}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold" style="color: var(--primary-color);">${p.points.toLocaleString()}</p>
+                                <p class="text-xs text-gray-500">points</p>
+                            </div>
+                        </div>
+                    </div>`).join('');
+
+                tableBody.innerHTML = sortedPartners.map((p, i) => `
+                    <tr class="border-b last:border-b-0 hover:bg-gray-50">
+                        <td class="p-4 font-bold">${i + 1}</td>
+                        <td class="p-4">${p.name}<br><span class="text-xs text-gray-500">${p.firm}</span></td>
+                        <td class="p-4">${p.city}</td><td class="p-4">${p.type}</td>
+                        <td class="p-4 font-semibold" style="color: var(--primary-color);">${p.points.toLocaleString()}
+                            ${getLastQuarterPoints(p) > 0 ? `<br><span class="text-xs text-gray-500 font-normal">Last Q: ${getLastQuarterPoints(p).toLocaleString()}</span>` : ''}
+                        </td>
+                    </tr>`).join('');
+                
+                lucide.createIcons();
+            };
+
+            const renderScheme = () => {
+                const container = document.getElementById('scheme-container');
+                const activeScheme = schemes.find(s => s.active);
+                if (!container) return;
+                container.innerHTML = activeScheme
+                    ? `<div class="card p-6 bg-gradient-to-r from-blue-700 to-blue-900 text-white"><h3 class="text-2xl font-bold mb-2 flex items-center gap-2"><i data-lucide="zap"></i> ${activeScheme.title}</h3><p>${activeScheme.description}</p></div>`
+                    : `<div class="card p-6 bg-gray-100 text-center"><p class="text-gray-600">No currently active schemes.</p></div>`;
+                lucide.createIcons();
+            };
+
+            const renderHeroTicker = () => {
+                const container = document.getElementById('hero-ticker-container');
+                const textEl = document.getElementById('hero-ticker-text');
+                if (!container || !textEl) return;
+
+                const activeScheme = schemes.find(s => s.active);
+
+                if (activeScheme) {
+                    const schemeContent = `<span class="inline-flex items-center mx-12"><i data-lucide="zap" class="inline-block w-4 h-4 mr-3 text-yellow-300"></i><strong>${activeScheme.title}</strong> &mdash; ${activeScheme.description}</span>`;
+                    // Duplicate the content multiple times for a seamless loop
+                    textEl.innerHTML = schemeContent.repeat(3); // Repeat 3 times to ensure continuous scroll
+                    container.classList.remove('hidden');
+                    container.style.display = 'block'; // Ensure container is visible
+                    textEl.style.animation = 'marquee 25s linear infinite'; // Reset animation
+                    lucide.createIcons();
+                } else {
+                    container.classList.add('hidden');
+                }
+            };
+            
+            const renderContactInfo = () => {
+                const container = document.getElementById('contact-info-public');
+                if(!container) return;
+                container.innerHTML = `
+                    <div class="flex items-start gap-4"><i data-lucide="award" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i><div><strong>What We Supply:</strong> ${contactDetails.supply}</div></div>
+                    <div class="flex items-start gap-4"><i data-lucide="phone" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i><div><strong>Call Us:</strong> ${contactDetails.phone}</div></div>
+                    <div class="flex items-start gap-4"><i data-lucide="map-pin" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i><div><strong>Address:</strong> ${contactDetails.address}</div></div>
+                    <div class="flex items-start gap-4"><i data-lucide="mail" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i><div><strong>Email:</strong> ${contactDetails.email}</div></div>
+                `;
+                lucide.createIcons();
+            }
+
+            const renderCatalogues = () => {
+                const container = document.getElementById('catalogue-list');
+                if(!container) return;
+                container.innerHTML = catalogues.map(cat => `
+                    <a href="${cat.file}" download class="card p-6 text-center group">
+                        <i data-lucide="file-down" class="w-12 h-12 mx-auto text-gray-400 group-hover:text-blue-600 transition"></i>
+                        <h3 class="font-semibold mt-4 group-hover:text-blue-600 transition">${cat.title}</h3>
+                    </a>`).join('');
+                lucide.createIcons();
+            }
+            
+            const renderPodcasts = () => {
+                const container = document.getElementById('podcast-list');
+                if(!container) return;
+                container.innerHTML = podcasts.map(pod => `
+                    <div class="card overflow-hidden">
+                        <div class="aspect-w-16 aspect-h-9"><iframe src="https://www.youtube.com/embed/${pod.videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full"></iframe></div>
+                        <div class="p-4"><h3 class="font-bold">${pod.title}</h3><p class="text-sm text-gray-600">With ${pod.partnerName}</p></div>
+                    </div>`).join('');
+            }
+            
+            // --- ADMIN RENDER FUNCTIONS ---
+            // Admin Dashboard Stats
+            const formatCurrency = (amount) => {
+                return new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                    maximumFractionDigits: 0
+                }).format(amount);
+            };
+
+            const showPointsHistory = (partner) => {
+                const modal = document.getElementById('points-history-modal');
+                document.getElementById('points-history-title').textContent = `${partner.name}'s Points History`;
+                document.getElementById('points-history-subtitle').textContent = `${partner.firm} · ${partner.type}`;
+
+                // Calculate points breakdown
+                let totalPoints = partner.points;
+                let contributionPoints = 0;
+                let bonusPoints = 0;
+
+                // Process all contributions to create a timeline
+                const timeline = [];
+
+                // Sort contributions by date
+                const sortedContributions = [...(partner.contributions || [])].sort((a, b) => 
+                    new Date(b.date) - new Date(a.date)
+                );
+
+                sortedContributions.forEach(contrib => {
+                    const basePoints = Math.round(contrib.amount / 10);
+                    contributionPoints += basePoints;
+
+                    // Check for bonus conditions from the contribution date
+                    const monthContributions = sortedContributions.filter(c => {
+                        const contributionMonth = new Date(c.date).getMonth();
+                        const thisMonth = new Date(contrib.date).getMonth();
+                        return contributionMonth === thisMonth;
+                    });
+
+                    // Calculate bonuses
+                    const hasAdvancePayment = contrib.amount >= 50000; // Example threshold
+                    const hasMultipleClients = monthContributions.length >= 5;
+
+                    const advanceBonus = hasAdvancePayment ? 1000 : 0;
+                    const clientsBonus = hasMultipleClients ? 5000 : 0;
+                    
+                    bonusPoints += advanceBonus + clientsBonus;
+
+                    // Add to timeline
+                    timeline.push({
+                        date: contrib.date,
+                        amount: contrib.amount,
+                        basePoints: basePoints,
+                        advanceBonus: advanceBonus,
+                        clientsBonus: clientsBonus,
+                        totalPoints: basePoints + advanceBonus + clientsBonus,
+                        isAdvancePayment: hasAdvancePayment,
+                        isMultipleClients: hasMultipleClients
+                    });
+                });
+
+                // Update summary stats
+                document.getElementById('points-total').textContent = totalPoints.toLocaleString();
+                document.getElementById('points-contributions').textContent = contributionPoints.toLocaleString();
+                document.getElementById('points-bonus').textContent = bonusPoints.toLocaleString();
+
+                // Render timeline
+                document.getElementById('points-timeline').innerHTML = timeline.map(entry => `
+                    <div class="relative pl-8 pb-6 border-l-2 border-gray-200 last:border-l-0 last:pb-0">
+                        <div class="absolute left-0 transform -translate-x-1/2 w-4 h-4 rounded-full bg-blue-500"></div>
+                        <div class="bg-white rounded-lg border p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="font-medium">${new Date(entry.date).toLocaleDateString('en-IN', { 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                })}</p>
+                                <span class="text-xl font-bold text-blue-600">+${entry.totalPoints}</span>
+                            </div>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between text-gray-600">
+                                    <span>Contribution Amount</span>
+                                    <span class="font-medium">${formatCurrency(entry.amount)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Base Points (10:1)</span>
+                                    <span>+${entry.basePoints}</span>
+                                </div>
+                                ${entry.advanceBonus ? `
+                                    <div class="flex justify-between text-green-600">
+                                        <span>Advance Payment Bonus</span>
+                                        <span>+${entry.advanceBonus}</span>
+                                    </div>
+                                ` : ''}
+                                ${entry.clientsBonus ? `
+                                    <div class="flex justify-between text-green-600">
+                                        <span>Multiple Clients Bonus</span>
+                                        <span>+${entry.clientsBonus}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                ${entry.isAdvancePayment ? 
+                                    '<span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">Advance Payment</span>' : ''}
+                                ${entry.isMultipleClients ? 
+                                    '<span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">5+ Clients</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Show modal
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            };
+
+            const getMonthlyContributions = () => {
+                const monthlyData = {};
+                partners.forEach(partner => {
+                    partner.contributions?.forEach(contrib => {
+                        const date = new Date(contrib.date);
+                        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                        monthlyData[monthKey] = (monthlyData[monthKey] || 0) + contrib.amount;
+                    });
+                });
+                return monthlyData;
+            };
+
+            const renderFinancialDashboard = () => {
+                // Calculate total contributions
+                const totalContributions = partners.reduce((sum, p) => 
+                    sum + (p.contributions?.reduce((s, c) => s + c.amount, 0) || 0), 0);
+                
+                // Get current month data
+                const currentDate = new Date();
+                const currentMonth = currentDate.getMonth();
+                const currentYear = currentDate.getFullYear();
+                
+                // Calculate monthly statistics
+                const thisMonthContributions = partners.flatMap(p => 
+                    (p.contributions || []).filter(c => {
+                        const contribDate = new Date(c.date);
+                        return contribDate.getMonth() === currentMonth && 
+                               contribDate.getFullYear() === currentYear;
+                    })
+                );
+
+                const currentMonthAmount = thisMonthContributions.reduce((sum, c) => sum + c.amount, 0);
+                
+                // Find most active partner this month
+                const partnerContributions = {};
+                thisMonthContributions.forEach(c => {
+                    const partner = partners.find(p => p.contributions?.includes(c));
+                    if (partner) {
+                        partnerContributions[partner.id] = (partnerContributions[partner.id] || 0) + c.amount;
+                    }
+                });
+
+                let mostActivePartner = null;
+                let maxContribution = 0;
+                Object.entries(partnerContributions).forEach(([partnerId, amount]) => {
+                    if (amount > maxContribution) {
+                        maxContribution = amount;
+                        mostActivePartner = partners.find(p => p.id === parseInt(partnerId));
+                    }
+                });
+
+                // Count new partners this month
+                const newPartnersCount = partners.filter(p => {
+                    const firstContrib = p.contributions?.[0]?.date;
+                    if (!firstContrib) return false;
+                    const contribDate = new Date(firstContrib);
+                    return contribDate.getMonth() === currentMonth && 
+                           contribDate.getFullYear() === currentYear;
+                }).length;
+                
+                // Get all transactions
+                const allTransactions = partners.flatMap(p => 
+                    (p.contributions || []).map(c => ({
+                        date: c.date,
+                        amount: c.amount,
+                        points: Math.round(c.amount / 10),
+                        partnerName: p.name,
+                        partnerType: p.type
+                    }))
+                ).sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Update monthly statistics
+                if (mostActivePartner) {
+                    document.getElementById('most-active-partner').textContent = mostActivePartner.name;
+                    document.getElementById('most-active-contributions').textContent = 
+                        `${formatCurrency(maxContribution)} this month`;
+                }
+                document.getElementById('new-partners-count').textContent = newPartnersCount;
+                document.getElementById('transactions-count').textContent = thisMonthContributions.length;
+
+                // Update main stats
+                document.getElementById('finance-total-contributions').textContent = formatCurrency(totalContributions);
+                document.getElementById('finance-current-month').textContent = formatCurrency(currentMonthAmount);
+                document.getElementById('finance-avg-order').textContent = 
+                    formatCurrency(totalContributions / allTransactions.length || 0);
+                document.getElementById('finance-order-count').textContent = 
+                    `${allTransactions.length} total orders`;
+
+                // Render top contributors
+                const topContributors = partners
+                    .map(p => ({
+                        name: p.name,
+                        type: p.type,
+                        total: (p.contributions || []).reduce((sum, c) => sum + c.amount, 0)
+                    }))
+                    .filter(p => p.total > 0)
+                    .sort((a, b) => b.total - a.total)
+                    .slice(0, 5);
+
+                document.getElementById('top-contributors-list').innerHTML = topContributors
+                    .map((p, i) => `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-medium ${i === 0 ? 'text-yellow-600' : i === 1 ? 'text-gray-600' : i === 2 ? 'text-amber-600' : 'text-gray-400'}">#${i + 1}</span>
+                                <div>
+                                    <p class="text-sm font-medium">${p.name}</p>
+                                    <p class="text-xs text-gray-500">${p.type}</p>
+                                </div>
+                            </div>
+                            <p class="font-medium">${formatCurrency(p.total)}</p>
+                        </div>
+                    `).join('');
+
+                // Render recent transactions with clickable rows
+                document.getElementById('recent-transactions').innerHTML = allTransactions
+                    .slice(0, 10)
+                    .map(t => `
+                        <tr class="border-b last:border-b-0 hover:bg-gray-50 cursor-pointer" data-partner-name="${t.partnerName}">
+                            <td class="p-4">${new Date(t.date).toLocaleDateString()}</td>
+                            <td class="p-4">${t.partnerName}</td>
+                            <td class="p-4 font-medium">${formatCurrency(t.amount)}</td>
+                            <td class="p-4">+${t.points}</td>
+                            <td class="p-4">
+                                <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Completed</span>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                // Add click handlers for transactions
+                document.getElementById('recent-transactions').addEventListener('click', (e) => {
+                    const row = e.target.closest('tr');
+                    if (row) {
+                        const partnerName = row.dataset.partnerName;
+                        const partner = partners.find(p => p.name === partnerName);
+                        if (partner) {
+                            showPointsHistory(partner);
+                        }
+                    }
+                });
+
+                // Initialize export button
+                document.getElementById('export-transactions')?.addEventListener('click', () => {
+                    const csvContent = [
+                        ['Date', 'Partner', 'Amount', 'Points'],
+                        ...allTransactions.map(t => [
+                            new Date(t.date).toLocaleDateString(),
+                            t.partnerName,
+                            t.amount,
+                            t.points
+                        ])
+                    ].map(row => row.join(',')).join('\n');
+
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'transactions.csv';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                });
+
+                // Add event listener for year change
+                document.getElementById('growth-chart-year')?.addEventListener('change', renderFinancialDashboard);
+            };
+
+            const updateAdminStats = () => {
+                // Partner stats
+                const totalPartners = partners.length;
+                const partnerTypes = partners.reduce((acc, p) => {
+                    acc[p.type] = (acc[p.type] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                document.getElementById('stats-total-partners').textContent = totalPartners;
+                document.getElementById('stats-partner-types').textContent = Object.entries(partnerTypes)
+                    .map(([type, count]) => `${type}s: ${count}`).join(' · ');
+
+                // Points stats
+                const totalPoints = partners.reduce((sum, p) => sum + p.points, 0);
+                const eliteCount = partners.filter(p => p.elite).length;
+                document.getElementById('stats-total-points').textContent = totalPoints.toLocaleString();
+                document.getElementById('stats-points-distribution').textContent = 
+                    `${eliteCount} Elite Partners · Avg: ${Math.round(totalPoints/totalPartners).toLocaleString()} pts`;
+
+                // Content stats
+                const contentCount = podcasts.length + catalogues.length;
+                document.getElementById('stats-total-content').textContent = contentCount;
+                document.getElementById('stats-content-breakdown').textContent = 
+                    `${podcasts.length} Podcasts · ${catalogues.length} Catalogues`;
+
+                // Quarter progress
+                const start = new Date(quarterStartDate);
+                const end = new Date(quarterEndDate);
+                const now = new Date();
+                const progress = Math.min(100, Math.max(0, 
+                    Math.round(((now - start) / (end - start)) * 100)
+                ));
+                document.getElementById('stats-quarter-progress').textContent = `${progress}%`;
+                document.getElementById('stats-quarter-dates').textContent = 
+                    `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+            };
+
+            const renderAdminPartners = () => {
+                const grid = document.getElementById('admin-partners-grid');
+                if(!grid) return;
+
+                // Get current filter values
+                const searchTerm = (document.getElementById('partner-search')?.value || '').toLowerCase();
+                const typeFilter = document.getElementById('filter-type')?.value;
+                const statusFilter = document.getElementById('filter-status')?.value;
+                const sortBy = document.getElementById('partner-sort')?.value || 'name';
+
+                // Filter partners
+                let filteredPartners = partners.filter(p => {
+                    const matchesSearch = !searchTerm || 
+                        [p.name, p.firm, p.city].some(field => field.toLowerCase().includes(searchTerm));
+                    const matchesType = !typeFilter || p.type === typeFilter;
+                    const matchesStatus = !statusFilter || 
+                        (statusFilter === 'verified' && p.verified) ||
+                        (statusFilter === 'elite' && p.elite) ||
+                        (statusFilter === 'new' && p.isNew);
+                    return matchesSearch && matchesType && matchesStatus;
+                });
+
+                // Sort partners
+                filteredPartners.sort((a, b) => {
+                    switch(sortBy) {
+                        case 'points': return b.points - a.points;
+                        case 'recent': return b.id - a.id;
+                        default: return a.name.localeCompare(b.name);
+                    }
+                });
+
+                // Render partner cards
+                grid.innerHTML = filteredPartners.map(p => `
+                    <div class="card hover:shadow-lg transition-shadow overflow-hidden">
+                        <div class="p-4 border-b bg-gray-50 flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-lg">${p.name}</h3>
+                                <p class="text-sm text-gray-600">${p.firm}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button data-id="${p.id}" class="edit-partner-btn text-gray-600 hover:text-blue-600">
+                                    <i data-lucide="edit" class="w-5 h-5"></i>
+                                </button>
+                                <button data-id="${p.id}" class="view-partner-btn text-gray-600 hover:text-blue-600">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="text-center p-2 bg-gray-50 rounded">
+                                    <p class="text-sm text-gray-500">Points</p>
+                                    <p class="font-bold text-lg">${p.points.toLocaleString()}</p>
+                                </div>
+                                <div class="text-center p-2 bg-gray-50 rounded">
+                                    <p class="text-sm text-gray-500">Referrals</p>
+                                    <p class="font-bold text-lg">${p.referrals}</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${p.verified ? '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Verified</span>' : ''}
+                                ${p.elite ? '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">Elite</span>' : ''}
+                                ${p.isNew ? '<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">New</span>' : ''}
+                                ${p.featured ? '<span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">Featured</span>' : ''}
+                            </div>
+                            <div class="text-sm text-gray-600">
+                                <p class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> ${p.city}</p>
+                                <p class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i> ${p.phone || 'Not provided'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Update quick filters
+                const quickFilters = document.getElementById('partner-quick-filters');
+                if (quickFilters) {
+                    const types = [...new Set(partners.map(p => p.type))];
+                    quickFilters.innerHTML = types.map(type => 
+                        `<button class="px-3 py-1 rounded-full bg-gray-100 text-sm hover:bg-gray-200 transition-colors" data-filter-type="${type}">
+                            ${type}s (${partners.filter(p => p.type === type).length})
+                        </button>`
+                    ).join('');
+                }
+
+                lucide.createIcons();
+                updateAdminStats();
+            };
+            
+            const renderAdminPodcasts = () => {
+                const container = document.getElementById('admin-podcasts-table-container');
+                container.innerHTML = `
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100 text-left"><tr><th class="p-3">Title</th><th class="p-3">Partner</th><th class="p-3">Actions</th></tr></thead>
+                        <tbody>
+                            ${podcasts.map(p => `
+                                <tr class="border-b last:border-b-0">
+                                    <td class="p-3 font-semibold">${p.title}</td><td class="p-3 text-gray-600">${p.partnerName}</td>
+                                    <td class="p-3 space-x-3"><button data-id="${p.id}" class="edit-podcast-btn text-blue-600 hover:underline">Edit</button><button data-id="${p.id}" class="delete-podcast-btn text-red-600 hover:underline">Delete</button></td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>`;
+            };
+            
+            const renderAdminCatalogues = () => {
+                const container = document.getElementById('admin-catalogues-table-container');
+                container.innerHTML = `
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100 text-left"><tr><th class="p-3">Title</th><th class="p-3">File URL</th><th class="p-3">Actions</th></tr></thead>
+                        <tbody>
+                            ${catalogues.map(c => `
+                                <tr class="border-b last:border-b-0">
+                                    <td class="p-3 font-semibold">${c.title}</td><td class="p-3 text-gray-600 truncate max-w-xs">${c.file}</td>
+                                    <td class="p-3 space-x-3"><button data-id="${c.id}" class="edit-catalogue-btn text-blue-600 hover:underline">Edit</button><button data-id="${c.id}" class="delete-catalogue-btn text-red-600 hover:underline">Delete</button></td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>`;
+            };
+
+            const renderAdminSettings = () => {
+                document.getElementById('setting-phone').value = contactDetails.phone;
+                document.getElementById('setting-email').value = contactDetails.email;
+                document.getElementById('setting-address').value = contactDetails.address;
+                document.getElementById('setting-supply').value = contactDetails.supply;
+                document.getElementById('setting-quarter-start').value = quarterStartDate;
+                document.getElementById('setting-quarter-end').value = quarterEndDate;
+            };
+
+            const renderAdminForms = () => {
+                // Renders forms that need dynamic data, like dropdowns
+                const pointsFormContainer = document.getElementById('admin-panel-points').querySelector('form');
+                pointsFormContainer.innerHTML = `
+                    <div><label class="block mb-1 font-medium">Select Partner</label>
+                        <select id="partner-select" class="w-full p-2 border rounded-lg">
+                            <option value="">Select a partner...</option>
+                            ${partners.map(p => `<option value="${p.id}">${p.name} (${p.firm})</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="mt-4"><label class="block mb-1 font-medium">Contribution Amount (₹)</label>
+                        <div class="flex gap-4 items-center">
+                            <input type="number" id="contribution-amount" placeholder="e.g., 50000" class="w-full p-2 border rounded-lg">
+                            <div class="text-sm text-gray-500">Points: <span id="points-preview" class="font-bold">0</span></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Points are calculated at 1 point per ₹10 contribution</p>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex items-center gap-4">
+                            <input type="checkbox" id="advanced-payment" class="h-4 w-4 rounded">
+                            <label>Advanced Payment (+1000 pts)</label>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <input type="checkbox" id="plus-5-clients" class="h-4 w-4 rounded">
+                            <label>5+ Clients This Month (+5000 pts)</label>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="text-sm font-medium">Total Points Breakdown:</div>
+                        <div id="points-breakdown" class="mt-2 space-y-1 text-sm">
+                            <div>Base Points: <span id="base-points">0</span></div>
+                            <div>Bonus Points: <span id="bonus-points">0</span></div>
+                            <div class="font-bold">Total Points: <span id="total-points">0</span></div>
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-6 px-6 py-2 rounded-lg btn-secondary w-full">Add Contribution</button>`;
+
+                const schemeFormContainer = document.getElementById('admin-panel-schemes').querySelector('form');
+                schemeFormContainer.innerHTML = `
+                    <div><label class="block mb-1 font-medium">Scheme Title</label><input type="text" id="scheme-title" class="w-full p-2 border rounded-lg"></div>
+                    <div><label class="block mb-1 font-medium">Scheme Description</label><textarea id="scheme-description" rows="3" class="w-full p-2 border rounded-lg"></textarea></div>
+                    <div class="flex items-center gap-4"><input type="checkbox" id="scheme-active" class="h-4 w-4 rounded"><label for="scheme-active">Scheme is Active</label></div>
+                    <button type="submit" class="px-6 py-2 rounded-lg btn-secondary">Update Scheme</button>`;
+                
+                const partnerSelect = document.getElementById('partner-select');
+                if (partnerSelect) {
+                    partnerSelect.innerHTML = partners
+                        .sort((a,b) => a.name.localeCompare(b.name))
+                        .map(p => `<option value="${p.id}">${p.name} (${p.firm})</option>`).join('');
+                }
+
+                const activeScheme = schemes.find(s => s.active) || {title: '', description: '', active: false};
+                document.getElementById('scheme-title').value = activeScheme.title;
+                document.getElementById('scheme-description').value = activeScheme.description;
+                document.getElementById('scheme-active').checked = activeScheme.active;
+            };
+            
+            // --- MODAL & TOAST LOGIC ---
+            const adminModal = document.getElementById('admin-modal');
+            const modalForm = document.getElementById('modal-form');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            const modalFooter = document.getElementById('modal-footer');
+
+            const openModal = () => { adminModal.classList.remove('hidden'); adminModal.classList.add('flex'); }
+            const closeModal = () => { adminModal.classList.add('hidden'); adminModal.classList.remove('flex'); modalForm.reset(); }
+            
+            const toastEl = document.getElementById('toast');
+            const showToast = (message, isError = false) => {
+                toastEl.textContent = message;
+                toastEl.className = `fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-lg text-white ${isError ? 'bg-red-500' : 'bg-green-600'} show`;
+                setTimeout(() => { toastEl.classList.remove('show'); }, 3000);
+            };
+
+            const openPartnerModal = (partnerId = null) => {
+                const p = partnerId ? partners.find(p => p.id === partnerId) : {};
+                modalForm.dataset.entity = 'partner';
+                modalForm.dataset.id = partnerId || '';
+                modalTitle.textContent = partnerId ? "Edit Partner" : "Add New Partner";
+                
+                modalContent.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="block mb-1 font-medium">Full Name</label><input type="text" id="modal-partner-name" class="w-full p-2 border rounded-lg" required value="${p.name || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Firm Name</label><input type="text" id="modal-partner-firm" class="w-full p-2 border rounded-lg" required value="${p.firm || ''}"></div>
+                        <div><label class="block mb-1 font-medium">City</label><input type="text" id="modal-partner-city" class="w-full p-2 border rounded-lg" required value="${p.city || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Partner Type</label><select id="modal-partner-type" class="w-full p-2 border rounded-lg"><option>Designer</option><option>Carpenter</option><option>Dealer</option></select></div>
+                        <div class="md:col-span-2"><label class="block mb-1 font-medium">Photo URL</label><input type="text" id="modal-partner-photo" class="w-full p-2 border rounded-lg" value="${p.photo || ''}"></div>
+                         <div class="md:col-span-2"><label class="block mb-1 font-medium">Experience</label><textarea id="modal-partner-experience" class="w-full p-2 border rounded-lg" rows="3" placeholder="e.g., 10+ years in commercial design...">${p.experience || ''}</textarea></div>
+                        <div><label class="block mb-1 font-medium">Phone Number</label><input type="tel" id="modal-partner-phone" class="w-full p-2 border rounded-lg" value="${p.phone || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Email</label><input type="email" id="modal-partner-email" class="w-full p-2 border rounded-lg" value="${p.email || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Website</label><input type="url" id="modal-partner-website" class="w-full p-2 border rounded-lg" value="${p.website || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Instagram Username</label><input type="text" id="modal-partner-instagram" class="w-full p-2 border rounded-lg" value="${p.instagram || ''}"></div>
+                        <div class="md:col-span-2"><label class="block mb-1 font-medium">Portfolio Links</label><textarea id="modal-partner-portfolio" class="w-full p-2 border rounded-lg font-mono text-sm" rows="4" placeholder="Project Name | https://url.com (one per line)"></textarea></div>
+                        <div><label class="block mb-1 font-medium">Points</label><input type="number" id="modal-partner-points" class="w-full p-2 border rounded-lg" required value="${p.points || 0}" readonly>
+                            <p class="text-sm text-gray-500 mt-1">Points are calculated automatically from contributions</p>
+                        </div>
+                        <div><label class="block mb-1 font-medium">Referrals</label><input type="number" id="modal-partner-referrals" class="w-full p-2 border rounded-lg" required value="${p.referrals || 0}"></div>
+                        
+                        <!-- New Contribution Section -->
+                        <div class="md:col-span-2 border-t pt-4 mt-4">
+                            <h4 class="font-bold text-lg mb-4">Add New Contribution</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block mb-1 font-medium">Contribution Amount (₹)</label>
+                                    <input type="number" id="modal-contribution-amount" class="w-full p-2 border rounded-lg" placeholder="e.g., 50000">
+                                    <p class="text-xs text-gray-500 mt-1">Points are calculated at 1 point per ₹10 contribution</p>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-3">
+                                        <input type="checkbox" id="modal-advanced-payment" class="h-4 w-4 rounded">
+                                        <label>Advanced Payment (+1000 pts)</label>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <input type="checkbox" id="modal-plus-5-clients" class="h-4 w-4 rounded">
+                                        <label>5+ Clients This Month (+5000 pts)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                                <div class="text-sm font-medium">Points Calculation Preview:</div>
+                                <div class="mt-2 space-y-1 text-sm">
+                                    <div>Base Points: <span id="modal-base-points">0</span></div>
+                                    <div>Bonus Points: <span id="modal-bonus-points">0</span></div>
+                                    <div class="font-bold">Total New Points: <span id="modal-total-points">0</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4 flex-wrap md:col-span-2">
+                            <input type="checkbox" id="modal-partner-verified" class="h-4 w-4 rounded"><label>Verified</label>
+                            <input type="checkbox" id="modal-partner-isNew" class="h-4 w-4 rounded"><label>New</label>
+                            <input type="checkbox" id="modal-partner-featured" class="h-4 w-4 rounded"><label>Featured</label>
+                            <div class="flex items-center gap-2 text-sm text-gray-500 ml-auto">
+                                <i data-lucide="info" class="w-4 h-4"></i>
+                                <span>Elite status is automatic.</span>
+                            </div>
+                        </div>
+                    </div>`;
+
+                // Set select and checkbox values after innerHTML is processed
+                if(p.type) document.getElementById('modal-partner-type').value = p.type;
+                if(p.portfolio) document.getElementById('modal-partner-portfolio').value = p.portfolio.map(item => `${item.projectName} | ${item.url}`).join('\n');
+                ['verified', 'isNew', 'featured'].forEach(key => {
+                    if(p[key]) document.getElementById(`modal-partner-${key}`).checked = true;
+                });
+                
+                modalFooter.innerHTML = `
+                    ${partnerId ? `<button type="button" id="delete-partner-btn" class="text-red-600 hover:underline mr-auto">Delete Partner</button>` : '<div></div>'}
+                    <div class="space-x-4"><button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Changes</button></div>`;
+                
+                openModal();
+                lucide.createIcons();
+
+                // Add event listeners for real-time points calculation in modal
+                const contributionAmount = document.getElementById('modal-contribution-amount');
+                const advancedPayment = document.getElementById('modal-advanced-payment');
+                const plusFiveClients = document.getElementById('modal-plus-5-clients');
+                
+                const updateModalPointsPreview = () => {
+                    const amount = parseInt(contributionAmount.value) || 0;
+                    const hasAdvancePayment = advancedPayment.checked;
+                    const hasMultipleClients = plusFiveClients.checked;
+                    
+                    const points = calculatePoints(amount, hasAdvancePayment, hasMultipleClients);
+                    
+                    document.getElementById('modal-base-points').textContent = points.basePoints.toLocaleString();
+                    document.getElementById('modal-bonus-points').textContent = points.bonusPoints.toLocaleString();
+                    document.getElementById('modal-total-points').textContent = points.totalPoints.toLocaleString();
+                };
+
+                contributionAmount?.addEventListener('input', updateModalPointsPreview);
+                advancedPayment?.addEventListener('change', updateModalPointsPreview);
+                plusFiveClients?.addEventListener('change', updateModalPointsPreview);
+            };
+
+            const openPodcastModal = (podcastId = null) => {
+                 const p = podcastId ? podcasts.find(p => p.id === podcastId) : {};
+                 modalForm.dataset.entity = 'podcast';
+                 modalForm.dataset.id = podcastId || '';
+                 modalTitle.textContent = podcastId ? "Edit Podcast" : "Add New Podcast";
+                 modalContent.innerHTML = `
+                    <div><label class="block mb-1 font-medium">Podcast Title</label><input type="text" id="modal-podcast-title" class="w-full p-2 border rounded-lg" required value="${p.title || ''}"></div>
+                    <div class="relative"><label class="block mb-1 font-medium">Partner Name</label><input type="text" id="modal-podcast-partnerName" class="w-full p-2 border rounded-lg" required value="${p.partnerName || ''}" autocomplete="off"><div id="podcast-partner-suggestions"></div></div>
+                    <div><label class="block mb-1 font-medium">YouTube Video ID</label><input type="text" id="modal-podcast-videoId" class="w-full p-2 border rounded-lg" required value="${p.videoId || ''}"></div>
+                 `;
+                 modalFooter.innerHTML = `<button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Changes</button>`;
+                 openModal();
+                 
+                 // Add smart suggestion logic
+                 const partnerNameInput = document.getElementById('modal-podcast-partnerName');
+                 const suggestionsContainer = document.getElementById('podcast-partner-suggestions');
+                 
+                 partnerNameInput.addEventListener('keyup', () => {
+                     const query = partnerNameInput.value.toLowerCase();
+                     if (query.length < 2) {
+                         suggestionsContainer.innerHTML = '';
+                         return;
+                     }
+                     const matchedPartners = partners.filter(partner => partner.name.toLowerCase().includes(query));
+                     suggestionsContainer.innerHTML = matchedPartners.map(match => 
+                         `<div class="p-2 hover:bg-gray-100 cursor-pointer suggestion-item" data-name="${match.name}">
+                            <strong>${match.name}</strong> <span class="text-sm text-gray-500">(${match.firm}, ${match.city})</span>
+                          </div>`
+                     ).join('');
+                 });
+
+                 suggestionsContainer.addEventListener('click', (e) => {
+                     const item = e.target.closest('.suggestion-item');
+                     if (item) {
+                         partnerNameInput.value = item.dataset.name;
+                         suggestionsContainer.innerHTML = '';
+                     }
+                 });
+            };
+            
+            const openCatalogueModal = (catalogueId = null) => {
+                 const c = catalogueId ? catalogues.find(c => c.id === catalogueId) : {};
+                 modalForm.dataset.entity = 'catalogue';
+                 modalForm.dataset.id = catalogueId || '';
+                 modalTitle.textContent = catalogueId ? "Edit Catalogue" : "Add New Catalogue";
+                 modalContent.innerHTML = `
+                    <div><label class="block mb-1 font-medium">Catalogue Title</label><input type="text" id="modal-catalogue-title" class="w-full p-2 border rounded-lg" required value="${c.title || ''}"></div>
+                    <div><label class="block mb-1 font-medium">File URL</label><input type="url" id="modal-catalogue-file" class="w-full p-2 border rounded-lg" required value="${c.file || ''}"></div>
+                 `;
+                 modalFooter.innerHTML = `<button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Changes</button>`;
+                 openModal();
+            };
+
+            const openResetPasswordModal = () => {
+                modalForm.dataset.entity = 'reset-points-confirm';
+                modalForm.dataset.id = '';
+                modalTitle.textContent = "Confirm Points Reset";
+                modalContent.innerHTML = `
+                    <p class="text-gray-600">This is a critical action. To proceed, please enter the admin password.</p>
+                    <div>
+                        <label class="block mb-1 font-medium">Password</label>
+                        <input type="password" id="modal-admin-password" class="w-full p-2 border rounded-lg" required>
+                        <p id="modal-password-error" class="text-red-500 text-sm mt-1 hidden">Incorrect password.</p>
+                    </div>
+                `;
+                modalFooter.innerHTML = `
+                    <button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold">Confirm & Reset</button>`;
+                openModal();
+            };
+            
+            // --- PARTNER DETAIL MODAL ---
+            const partnerDetailModal = document.getElementById('partner-detail-modal');
+            const partnerDetailContent = document.getElementById('partner-detail-content');
+            
+            const openPartnerDetailModal = (partnerId) => {
+                const p = partners.find(p => p.id === partnerId);
+                if (!p) return;
+
+                const partnerPodcast = podcasts.find(pod => pod.partnerName === p.name);
+                const partnerAchievements = getPartnerAchievements(p);
+
+                const profileImage = p.photo 
+                    ? `<img src="${p.photo}" alt="${p.name}" class="w-full h-full object-cover">`
+                    : `<div class="w-full h-full flex items-center justify-center font-bold text-5xl text-white" style="background-color: var(--primary-color);">${p.name.charAt(0)}</div>`;
+
+                partnerDetailContent.innerHTML = `
+                    <div class="flex flex-col md:flex-row items-start gap-6 border-b pb-6 mb-6">
+                        <div class="w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden flex-shrink-0 bg-gray-200 border-4 border-white shadow-md">
+                            ${profileImage}
+                        </div>
+                        <div class="flex-grow pt-2">
+                            <h2 class="text-3xl font-bold">${p.name}</h2>
+                            <p class="text-lg text-gray-600">${p.firm} - ${p.city}</p>
+                            <div class="mt-3 flex items-center gap-2 flex-wrap text-xs">
+                                ${p.verified ? `<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full">✓ Verified</span>` : ''}
+                                ${p.elite ? `<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">★ Elite</span>` : ''}
+                                ${p.isNew ? `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">● New</span>` : ''}
+                                ${p.featured ? `<span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full">↑ Featured</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                        <div class="lg:col-span-2 space-y-6">
+                             <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-100 p-4 rounded-lg text-center"><p class="text-sm text-gray-500">Current Points</p><p class="text-3xl font-bold" style="color:var(--primary-color);">${p.points.toLocaleString()}</p></div>
+                                <div class="bg-slate-100 p-4 rounded-lg text-center"><p class="text-sm text-gray-500">Last Quarter</p><p class="text-3xl font-bold text-gray-600">${getLastQuarterPoints(p).toLocaleString()}</p></div>
+                            </div>
+                            ${partnerAchievements.length > 0 ? `<div><h3 class="font-bold text-lg mb-2">Achievements</h3><div class="flex flex-wrap gap-2">${partnerAchievements.map(ach => `<div class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm" title="${ach.name}">${ach.icon} ${ach.name}</div>`).join('')}</div></div>` : ''}
+                             ${p.experience ? `<div><h3 class="font-bold text-lg mb-2">Experience</h3><p class="text-gray-600 text-sm">${p.experience}</p></div>` : ''}
+                             <div class="space-y-3 text-sm">
+                                ${p.phone ? `<div class="flex items-center gap-3"><i data-lucide="phone" class="w-4 h-4 text-gray-500"></i><a href="tel:${p.phone}" class="hover:underline">${p.phone}</a></div>` : ''}
+                                ${p.email ? `<div class="flex items-center gap-3"><i data-lucide="mail" class="w-4 h-4 text-gray-500"></i><a href="mailto:${p.email}" class="hover:underline">${p.email}</a></div>` : ''}
+                                ${p.website ? `<div class="flex items-center gap-3"><i data-lucide="globe" class="w-4 h-4 text-gray-500"></i><a href="${p.website}" target="_blank" class="hover:underline">Website</a></div>` : ''}
+                                ${p.instagram ? `<div class="flex items-center gap-3"><i data-lucide="instagram" class="w-4 h-4 text-gray-500"></i><a href="https://instagram.com/${p.instagram}" target="_blank" class="hover:underline">@${p.instagram}</a></div>` : ''}
+                            </div>
+                        </div>
+                        <div class="lg:col-span-3 space-y-6">
+                             ${partnerPodcast ? `<div><h3 class="font-bold text-lg mb-2">Partner Podcast</h3><div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md"><iframe src="https://www.youtube.com/embed/${partnerPodcast.videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full"></iframe></div></div>` : ''}
+                            ${p.portfolio.length > 0 ? `<div><h3 class="font-bold text-lg mb-2">Portfolio</h3><div class="space-y-3 max-h-60 overflow-y-auto pr-3">${p.portfolio.map(item => `<a href="${item.url}" target="_blank" class="block p-3 bg-gray-50 hover:bg-gray-100 rounded-md transition"><span class="font-semibold text-blue-700">${item.projectName}</span></a>`).join('')}</div></div>` : ''}
+                        </div>
+                    </div>
+                `;
+                partnerDetailModal.classList.remove('hidden');
+                partnerDetailModal.classList.add('flex');
+                lucide.createIcons();
+            };
+            
+            const closePartnerDetailModal = () => {
+                partnerDetailModal.classList.add('hidden');
+                partnerDetailModal.classList.remove('flex');
+            };
+
+            // --- INITIALIZATION ---
+            const init = () => {
+                loadDataFromLocalStorage();
+                renderPartners();
+                renderLeaderboard();
+                renderScheme();
+                renderHeroTicker();
+                renderCatalogues();
+                renderPodcasts();
+                renderContactInfo();
+                showPage(window.location.hash || '#home');
+            };
+            
+            // Run initialization
+            init();
+
+            // Create Lucide icons after initialization
+            lucide.createIcons();
+
+            // --- EVENT LISTENERS ---
+            document.getElementById('portfolio-search').addEventListener('input', (e) => { searchTerm = e.target.value.toLowerCase(); renderPartners(); });
+            
+            document.querySelectorAll('.portfolio-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                document.querySelector('.portfolio-filter-btn.active').classList.remove('active');
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                renderPartners();
+            }));
+
+            document.querySelectorAll('.leaderboard-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                document.querySelector('.leaderboard-filter-btn.active').classList.remove('active');
+                e.target.classList.add('active');
+                currentLeaderboardFilter = e.target.dataset.filter;
+                renderLeaderboard();
+            }));
+            
+            document.getElementById('public-contact-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                showToast("Thank you for your message!");
+                e.target.reset();
+            });
+
+            // ADMIN LOGIN / LOGOUT
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (document.getElementById('username').value === 'Virag' && document.getElementById('password').value === 'Choc0') {
+                    document.getElementById('admin-login-form').classList.add('hidden');
+                    document.getElementById('admin-dashboard').classList.remove('hidden');
+                    document.getElementById('login-error').classList.add('hidden');
+                    renderAdminPartners(); renderAdminPodcasts(); renderAdminCatalogues(); renderAdminForms(); renderAdminSettings();
+                } else { document.getElementById('login-error').classList.remove('hidden'); }
+            });
+            document.getElementById('logout-button').addEventListener('click', () => {
+                 document.getElementById('admin-login-form').classList.remove('hidden');
+                 document.getElementById('admin-dashboard').classList.add('hidden');
+                 document.getElementById('login-form').reset();
+            });
+
+            // ADMIN NAVIGATION & FILTERING
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                const targetPanel = e.currentTarget.dataset.panel;
+                document.querySelectorAll('.admin-panel').forEach(p => p.classList.toggle('active', `admin-panel-${targetPanel}` === p.id));
+                document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.toggle('active', b === e.currentTarget));
+            }));
+
+            // Partner search and filtering
+            document.getElementById('partner-search')?.addEventListener('input', renderAdminPartners);
+            document.getElementById('filter-type')?.addEventListener('change', renderAdminPartners);
+            document.getElementById('filter-status')?.addEventListener('change', renderAdminPartners);
+            document.getElementById('partner-sort')?.addEventListener('change', renderAdminPartners);
+
+            // Quick filters
+            document.getElementById('partner-quick-filters')?.addEventListener('click', (e) => {
+                const filterBtn = e.target.closest('button');
+                if (filterBtn) {
+                    const type = filterBtn.dataset.filterType;
+                    document.getElementById('filter-type').value = type;
+                    renderAdminPartners();
+                }
+            });
+
+            // Quick add partner
+            document.getElementById('quick-add-partner')?.addEventListener('click', () => {
+                const quickAddModal = {
+                    title: "Quick Add Partner",
+                    content: `
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><input type="text" id="quick-partner-name" placeholder="Full Name" class="w-full p-2 border rounded-lg"></div>
+                            <div><input type="text" id="quick-partner-firm" placeholder="Firm Name" class="w-full p-2 border rounded-lg"></div>
+                            <div><input type="text" id="quick-partner-city" placeholder="City" class="w-full p-2 border rounded-lg"></div>
+                            <div><select id="quick-partner-type" class="w-full p-2 border rounded-lg"><option>Designer</option><option>Carpenter</option><option>Dealer</option></select></div>
+                            <div><input type="tel" id="quick-partner-phone" placeholder="Phone Number" class="w-full p-2 border rounded-lg"></div>
+                            <div><input type="email" id="quick-partner-email" placeholder="Email" class="w-full p-2 border rounded-lg"></div>
+                        </div>
+                    `
+                };
+
+                modalForm.dataset.entity = 'quick-partner';
+                modalTitle.textContent = quickAddModal.title;
+                modalContent.innerHTML = quickAddModal.content;
+                modalFooter.innerHTML = `
+                    <button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-6 py-2 rounded-lg btn-primary">Add Partner</button>
+                `;
+                openModal();
+            });
+            
+            // ADMIN PANEL BUTTONS (ADD/EDIT/DELETE)
+            document.getElementById('add-partner-btn').addEventListener('click', () => openPartnerModal());
+            document.getElementById('add-podcast-btn').addEventListener('click', () => openPodcastModal());
+            document.getElementById('add-catalogue-btn').addEventListener('click', () => openCatalogueModal());
+            
+            // Render financial dashboard when switching to finance panel
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                if (btn.dataset.panel === 'finance') {
+                    btn.addEventListener('click', renderFinancialDashboard);
+                }
+            });
+
+            document.getElementById('admin-dashboard').addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                // Handle edit/view partner buttons
+                if (button.classList.contains('edit-partner-btn')) {
+                    openPartnerModal(parseInt(button.dataset.id));
+                } else if (button.classList.contains('view-partner-btn')) {
+                    openPartnerDetailModal(parseInt(button.dataset.id));
+                }
+                // Handle podcast and catalogue buttons
+                else if (button.classList.contains('edit-podcast-btn')) {
+                    openPodcastModal(parseInt(button.dataset.id));
+                } else if (button.classList.contains('edit-catalogue-btn')) {
+                    openCatalogueModal(parseInt(button.dataset.id));
+                } else if (button.classList.contains('delete-podcast-btn')) {
+                    if(confirm('Delete this podcast?')) {
+                        podcasts = podcasts.filter(p => p.id !== parseInt(button.dataset.id));
+                        renderAdminPodcasts(); renderPodcasts(); showToast("Podcast deleted."); saveDataToLocalStorage();
+                    }
+                } else if (button.classList.contains('delete-catalogue-btn')) {
+                    if(confirm('Delete this catalogue?')) {
+                        catalogues = catalogues.filter(c => c.id !== parseInt(button.dataset.id));
+                        renderAdminCatalogues(); renderCatalogues(); showToast("Catalogue deleted."); saveDataToLocalStorage();
+                    }
+                } else if (button.id === 'reset-points-button') {
+                    openResetPasswordModal();
+                }
+            });
+            
+            // Points calculation helper function
+            const calculatePoints = (amount, hasAdvancePayment, hasMultipleClients) => {
+                const basePoints = Math.floor(amount / 10);
+                const advanceBonus = hasAdvancePayment ? 1000 : 0;
+                const clientsBonus = hasMultipleClients ? 5000 : 0;
+                const totalBonus = advanceBonus + clientsBonus;
+                return {
+                    basePoints,
+                    bonusPoints: totalBonus,
+                    totalPoints: basePoints + totalBonus
+                };
+            };
+
+            // Add event listeners for real-time points calculation
+            document.getElementById('admin-dashboard').addEventListener('input', (e) => {
+                if (e.target.id === 'contribution-amount' || e.target.id === 'advanced-payment' || e.target.id === 'plus-5-clients') {
+                    const amount = parseInt(document.getElementById('contribution-amount').value) || 0;
+                    const hasAdvancePayment = document.getElementById('advanced-payment').checked;
+                    const hasMultipleClients = document.getElementById('plus-5-clients').checked;
+                    
+                    const points = calculatePoints(amount, hasAdvancePayment, hasMultipleClients);
+                    
+                    document.getElementById('points-preview').textContent = points.basePoints.toLocaleString();
+                    document.getElementById('base-points').textContent = points.basePoints.toLocaleString();
+                    document.getElementById('bonus-points').textContent = points.bonusPoints.toLocaleString();
+                    document.getElementById('total-points').textContent = points.totalPoints.toLocaleString();
+                }
+            });
+
+            // ADMIN FORM SUBMISSIONS
+            document.getElementById('admin-dashboard').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (e.target.id === 'scheme-form') {
+                    schemes = [{ title: document.getElementById('scheme-title').value, description: document.getElementById('scheme-description').value, active: document.getElementById('scheme-active').checked }];
+                    renderScheme(); 
+                    renderHeroTicker(); // Update the hero ticker when scheme is updated
+                    showToast('Scheme updated successfully!');
+                } else if (e.target.id === 'add-points-form') {
+                    const partnerId = parseInt(document.getElementById('partner-select').value);
+                    if (!partnerId) {
+                        showToast('Please select a partner.', true);
+                        return;
+                    }
+
+                    const partner = partners.find(p => p.id === partnerId);
+                    const amount = parseInt(document.getElementById('contribution-amount').value) || 0;
+                    
+                    if (amount < 100) {
+                        showToast('Contribution amount must be at least ₹100.', true);
+                        return;
+                    }
+                    
+                    const hasAdvancePayment = document.getElementById('advanced-payment').checked;
+                    const hasMultipleClients = document.getElementById('plus-5-clients').checked;
+                    const points = calculatePoints(amount, hasAdvancePayment, hasMultipleClients);
+                    
+                    if(partner) {
+                        partner.points = (partner.points || 0) + points.totalPoints;
+                        if (!partner.contributions) partner.contributions = [];
+                        partner.contributions.push({ 
+                            amount: amount, 
+                            date: new Date().toISOString().split('T')[0],
+                            basePoints: points.basePoints,
+                            bonusPoints: points.bonusPoints,
+                            totalPoints: points.totalPoints,
+                            isAdvancePayment: hasAdvancePayment,
+                            isMultipleClients: hasMultipleClients
+                        });
+                        if (partner.points > 15000) partner.elite = true;
+                        
+                        showToast(`${points.totalPoints.toLocaleString()} points (₹${amount.toLocaleString()}) added to ${partner.name}.`);
+                        renderAll(); 
+                        renderAdminPartners();
+                        renderFinancialDashboard();
+                        e.target.reset();
+                        // Reset point previews
+                        document.getElementById('points-preview').textContent = '0';
+                        document.getElementById('base-points').textContent = '0';
+                        document.getElementById('bonus-points').textContent = '0';
+                        document.getElementById('total-points').textContent = '0';
+                        saveDataToLocalStorage();
+                    }
+                } else if (e.target.id === 'contact-details-form') {
+                    contactDetails.phone = document.getElementById('setting-phone').value;
+                    contactDetails.email = document.getElementById('setting-email').value;
+                    contactDetails.address = document.getElementById('setting-address').value;
+                    contactDetails.supply = document.getElementById('setting-supply').value;
+                    renderContactInfo(); showToast('Contact information updated.');
+                } else if (e.target.id === 'quarter-dates-form') {
+                    quarterStartDate = document.getElementById('setting-quarter-start').value;
+                    quarterEndDate = document.getElementById('setting-quarter-end').value;
+                    showToast('Quarter dates updated.');
+                }
+                saveDataToLocalStorage();
+            });
+
+            // MODAL FORM SUBMISSION
+            modalForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = parseInt(modalForm.dataset.id);
+                const entity = modalForm.dataset.entity;
+
+                if (entity === 'reset-points-confirm') {
+                    const password = document.getElementById('modal-admin-password').value;
+                    const errorEl = document.getElementById('modal-password-error');
+                    if (password === 'Choc0') {
+                        const quarterIdentifier = getCurrentQuarter();
+                        partners.forEach(p => {
+                            if (!p.history) p.history = [];
+                             const existingEntryIndex = p.history.findIndex(h => h.quarter === quarterIdentifier);
+                            if (existingEntryIndex > -1) {
+                                p.history[existingEntryIndex].points = p.points;
+                            } else {
+                                p.history.push({ quarter: quarterIdentifier, points: p.points });
+                            }
+                            p.points = 0;
+                            p.elite = false;
+                            p.contributions = []; // Reset contributions for the new quarter
+                        });
+                        closeModal();
+                        renderAll();
+                        renderAdminPartners();
+                        renderAdminForms();
+                        showToast('All partner points have been reset.');
+                    } else {
+                        errorEl.classList.remove('hidden');
+                    }
+                    return; // Return early to avoid calling save data
+                }
+
+                if(entity === 'quick-partner') {
+                    // Handle quick add partner
+                    const partnerData = {
+                        name: document.getElementById('quick-partner-name').value,
+                        firm: document.getElementById('quick-partner-firm').value,
+                        city: document.getElementById('quick-partner-city').value,
+                        type: document.getElementById('quick-partner-type').value,
+                        phone: document.getElementById('quick-partner-phone').value,
+                        email: document.getElementById('quick-partner-email').value,
+                        points: 0,
+                        referrals: 0,
+                        verified: false,
+                        isNew: true,
+                        featured: false,
+                        elite: false,
+                        portfolio: [],
+                        id: Date.now(),
+                        history: [],
+                        contributions: []
+                    };
+                    partners.push(partnerData);
+                    showToast('Partner added successfully! Edit their profile for more details.');
+                } else if(entity === 'partner') {
+                    const portfolioRaw = document.getElementById('modal-partner-portfolio').value;
+                    const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+                    const portfolio = portfolioRaw.split('\n').map(line => {
+                        const parts = line.split('|');
+                        if (parts.length < 2) return null;
+                        const projectName = parts.slice(0, -1).join('|').trim();
+                        const url = parts[parts.length - 1].trim();
+                        if (projectName && url && urlRegex.test(url)) {
+                            return { projectName, url };
+                        }
+                        return null;
+                    }).filter(Boolean);
+                    
+                    const newPoints = parseInt(document.getElementById('modal-partner-points').value);
+                    const partnerData = {
+                        name: document.getElementById('modal-partner-name').value, firm: document.getElementById('modal-partner-firm').value, city: document.getElementById('modal-partner-city').value, type: document.getElementById('modal-partner-type').value, photo: document.getElementById('modal-partner-photo').value, experience: document.getElementById('modal-partner-experience').value, phone: document.getElementById('modal-partner-phone').value, email: document.getElementById('modal-partner-email').value, website: document.getElementById('modal-partner-website').value, instagram: document.getElementById('modal-partner-instagram').value, points: newPoints, referrals: parseInt(document.getElementById('modal-partner-referrals').value), verified: document.getElementById('modal-partner-verified').checked, isNew: document.getElementById('modal-partner-isNew').checked, featured: document.getElementById('modal-partner-featured').checked, portfolio,
+                        elite: newPoints > 15000
+                    };
+                    if(id) {
+                        const partnerIndex = partners.findIndex(p => p.id === id);
+                        partners[partnerIndex] = { ...partners[partnerIndex], ...partnerData };
+                    } else {
+                        partners.push({ ...partnerData, id: Date.now(), history: [], contributions: [], referrals: 0 });
+                    }
+                    renderAdminPartners();
+                } else if(entity === 'podcast') {
+                    const podcastData = { title: document.getElementById('modal-podcast-title').value, partnerName: document.getElementById('modal-podcast-partnerName').value, videoId: document.getElementById('modal-podcast-videoId').value };
+                    if(id) podcasts[podcasts.findIndex(p => p.id === id)] = { ...podcasts.find(p => p.id === id), ...podcastData };
+                    else podcasts.push({ ...podcastData, id: Date.now() });
+                    renderAdminPodcasts();
+                } else if(entity === 'catalogue') {
+                    const catalogueData = { title: document.getElementById('modal-catalogue-title').value, file: document.getElementById('modal-catalogue-file').value };
+                    if(id) catalogues[catalogues.findIndex(c => c.id === id)] = { ...catalogues.find(c => c.id === id), ...catalogueData };
+                    else catalogues.push({ ...catalogueData, id: Date.now() });
+                    renderAdminCatalogues();
+                }
+
+                closeModal();
+                renderAll();
+                showToast(`${entity.charAt(0).toUpperCase() + entity.slice(1)} saved successfully.`);
+                saveDataToLocalStorage();
+            });
+            
+            adminModal.addEventListener('click', (e) => {
+                if(e.target.id === 'cancel-modal-btn') closeModal();
+                if(e.target.id === 'delete-partner-btn') {
+                    const id = parseInt(modalForm.dataset.id);
+                    if(confirm('Are you sure you want to delete this partner?')) {
+                        partners = partners.filter(p => p.id !== id);
+                        closeModal(); renderAll(); renderAdminPartners(); showToast('Partner deleted.'); saveDataToLocalStorage();
+                    }
+                }
+            });
+            
+            // PARTNER DETAIL MODAL LISTENERS
+            document.getElementById('partner-cards-container').addEventListener('click', (e) => {
+                const card = e.target.closest('.card');
+                if (card && card.dataset.id) {
+                    openPartnerDetailModal(parseInt(card.dataset.id));
+                }
+            });
+
+            // POINTS HISTORY MODAL LISTENERS
+            document.getElementById('close-points-history')?.addEventListener('click', () => {
+                const modal = document.getElementById('points-history-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            });
+
+            // Add click handler for top contributors list
+            document.getElementById('top-contributors-list')?.addEventListener('click', (e) => {
+                const contributorDiv = e.target.closest('.flex');
+                if (contributorDiv) {
+                    const partnerName = contributorDiv.querySelector('.font-medium').textContent;
+                    const partner = partners.find(p => p.name === partnerName);
+                    if (partner) {
+                        showPointsHistory(partner);
+                    }
+                }
+            });
+
+            // Add event listener for real-time points calculation
+            document.getElementById('admin-dashboard')?.addEventListener('input', (e) => {
+                if (e.target.id === 'contribution-amount' || e.target.id === 'advanced-payment' || e.target.id === 'plus-5-clients') {
+                    const amount = parseInt(document.getElementById('contribution-amount').value) || 0;
+                    const hasAdvancePayment = document.getElementById('advanced-payment').checked;
+                    const hasMultipleClients = document.getElementById('plus-5-clients').checked;
+                    
+                    const points = calculatePoints(amount, hasAdvancePayment, hasMultipleClients);
+                    
+                    document.getElementById('points-preview').textContent = points.basePoints.toLocaleString();
+                    document.getElementById('base-points').textContent = points.basePoints.toLocaleString();
+                    document.getElementById('bonus-points').textContent = points.bonusPoints.toLocaleString();
+                    document.getElementById('total-points').textContent = points.totalPoints.toLocaleString();
+                }
+            });
+
+            // Close detail modal button
+            document.getElementById('close-detail-modal-btn').addEventListener('click', closePartnerDetailModal);
+
+            // --- INITIALIZATION ---
+            function renderAll() {
+                renderPartners(); renderLeaderboard(); renderScheme(); renderCatalogues(); renderPodcasts(); renderContactInfo(); renderHeroTicker();
+            }
+            loadDataFromLocalStorage();
+            showPage(window.location.hash); 
+            renderAll(); 
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
