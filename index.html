@@ -193,16 +193,67 @@
     .partner-avatar.ring-elite { box-shadow: 0 0 0 3px #fff, 0 0 0 8px rgba(139,92,246,0.28); }
     .partner-avatar.ring-new { box-shadow: 0 0 0 3px #fff, 0 0 0 8px rgba(34,197,94,0.22); }
     /* make the avatar container positioned so we can add animated ring overlays */
-    .partner-avatar { position: relative; }
-    /* animated rotating ring using a pseudo-element for a brighter, funky look */
-    .partner-avatar::after { content: ''; position: absolute; inset: -6px; border-radius: 9999px; pointer-events: none; opacity: 0.95; transform-origin: center; }
-    .partner-avatar.ring::after { background: conic-gradient(from 0deg, rgba(255,69,0,0.35), rgba(255,140,60,0.25), rgba(255,69,0,0.35)); animation: ring-spin 6s linear infinite; }
-    .partner-avatar.ring-gold::after { background: conic-gradient(from 0deg, rgba(250,204,21,0.35), rgba(255,226,102,0.22), rgba(250,204,21,0.35)); animation: ring-spin 6s linear infinite; }
-    .partner-avatar.ring-silver::after { background: conic-gradient(from 0deg, rgba(200,200,205,0.32), rgba(220,220,225,0.18), rgba(200,200,205,0.32)); animation: ring-spin 6s linear reverse infinite; }
-    .partner-avatar.ring-bronze::after { background: conic-gradient(from 0deg, rgba(195,127,63,0.34), rgba(223,172,132,0.18), rgba(195,127,63,0.34)); animation: ring-spin 7s linear infinite; }
-    .partner-avatar.ring-elite::after { background: conic-gradient(from 0deg, rgba(139,92,246,0.34), rgba(185,132,255,0.2), rgba(139,92,246,0.34)); animation: ring-spin 5.5s linear infinite; }
-    .partner-avatar.ring-new::after { background: conic-gradient(from 0deg, rgba(34,197,94,0.34), rgba(102,255,166,0.18), rgba(34,197,94,0.34)); animation: ring-spin 6.5s linear reverse infinite; }
-    @keyframes ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .partner-avatar { position: relative; overflow: visible; }
+    /* Stronger, cleaner rings: darker, layered, and a clearer spin for visual polish */
+    .partner-avatar::before {
+        content: '';
+        position: absolute;
+        inset: -8px;
+        border-radius: 9999px;
+        border: 3px solid rgba(0,0,0,0.12);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        pointer-events: none;
+        will-change: transform;
+    }
+    .partner-avatar::after {
+        content: '';
+        position: absolute;
+        inset: -12px;
+        border-radius: 9999px;
+        pointer-events: none;
+        border: 3px solid rgba(0,0,0,0.18);
+        border-top-color: rgba(0,0,0,0.65); /* darker accent to make the spin visible */
+        transform-origin: center;
+        animation: partner-ring-rotate 4.2s linear infinite;
+        opacity: 1;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+        will-change: transform;
+    }
+    /* Slight duration variants for subtle individuality */
+    .partner-avatar.ring-gold::after { animation-duration: 3.8s; }
+    .partner-avatar.ring-silver::after { animation-duration: 4.4s; }
+    .partner-avatar.ring-bronze::after { animation-duration: 4.8s; }
+    .partner-avatar.ring-elite::after { animation-duration: 3.6s; }
+    .partner-avatar.ring-new::after { animation-duration: 5s; }
+    @keyframes partner-ring-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Respect user preference for reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .partner-avatar::after { animation: none; }
+    }
+
+    /* orbiting dot placed on the ring circumference that revolves like a planet */
+    .partner-orbit { position: absolute; inset: 0; pointer-events: none; display: block; }
+    .partner-orbit { animation: partner-orbit-rotate 4.2s linear infinite; transform-origin: center center; }
+    .partner-dot { position: absolute; left: 50%; top: 0%; transform: translate(-50%, -50%); width: 10px; height: 10px; border-radius: 50%; background: rgba(0,0,0,0.6); box-shadow: 0 2px 6px rgba(0,0,0,0.12); pointer-events: none; }
+    /* color mapping for variants (dot color) */
+    .partner-avatar.ring-gold .partner-dot { background: rgba(180,130,10,0.95); }
+    .partner-avatar.ring-silver .partner-dot { background: rgba(120,120,130,0.95); }
+    .partner-avatar.ring-bronze .partner-dot { background: rgba(150,90,40,0.95); }
+    .partner-avatar.ring-elite .partner-dot { background: rgba(110,70,210,0.95); }
+    .partner-avatar.ring-new .partner-dot { background: rgba(20,150,80,0.95); }
+
+    /* make the rotating stroke pick up the variant color for visual clarity */
+    .partner-avatar.ring-gold::after { border-top-color: rgba(180,130,10,0.85); border-color: rgba(180,130,10,0.22); }
+    .partner-avatar.ring-silver::after { border-top-color: rgba(120,120,130,0.85); border-color: rgba(120,120,130,0.18); }
+    .partner-avatar.ring-bronze::after { border-top-color: rgba(150,90,40,0.85); border-color: rgba(150,90,40,0.18); }
+    .partner-avatar.ring-elite::after { border-top-color: rgba(110,70,210,0.85); border-color: rgba(110,70,210,0.18); }
+    .partner-avatar.ring-new::after { border-top-color: rgba(20,150,80,0.85); border-color: rgba(20,150,80,0.18); }
+
+    @keyframes partner-orbit-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Small rank badge (minimal) */
+    /* partner-rank removed — badges disabled per request */
     .partner-avatar:hover { transform: translateY(-3px); transition: transform 120ms ease; }
     /* also allow these ring classes on larger image containers (detail view) */
     .ring-gold { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(250, 204, 21, 0.18); }
@@ -1728,8 +1779,8 @@ const getLastQuarterPoints = (partner) => {
                     else if (p.isNew) ringClass = 'ring-new';
 
                     const avatarHtml = p.photo
-                        ? `<div class="partner-avatar ${ringClass}"><img src="${p.photo}" alt="${p.name}" loading="lazy"/></div>`
-                        : `<div class="partner-avatar ${ringClass}" style="background-color:var(--primary-color);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:24px">${(p.name||'').charAt(0)}</div>`;
+                        ? `<div class="partner-avatar ${ringClass}"><img src="${p.photo}" alt="${p.name}" loading="lazy"/><span class="partner-orbit"><span class="partner-dot"></span></span></div>`
+                        : `<div class="partner-avatar ${ringClass}" style="background-color:var(--primary-color);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:24px;position:relative">${(p.name||'').charAt(0)}<span class="partner-orbit"><span class="partner-dot"></span></span></div>`;
 
                     const portfolioLinks = p.portfolio && p.portfolio.length > 0 ? `
                         <div class="mt-2 text-xs max-h-20 overflow-y-auto pr-2">
@@ -1738,7 +1789,7 @@ const getLastQuarterPoints = (partner) => {
                     ` : '';
 
                     // Provide a small rank badge for the top 3
-                    const rankBadge = topIndex >= 0 && topIndex < 3 ? `<div class="absolute left-3 -top-2 text-sm font-bold px-2 py-1 rounded-full ${topIndex === 0 ? 'bg-yellow-400 text-white' : topIndex === 1 ? 'bg-gray-300 text-black' : 'bg-amber-500 text-white'}">#${topIndex + 1}</div>` : '';
+                    const rankBadge = '';
 
                     return `
                     <div class="card flex flex-col items-center text-center p-4 cursor-pointer hover:shadow-lg transition-shadow relative" data-id="${p.id}">
