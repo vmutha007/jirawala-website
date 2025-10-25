@@ -840,64 +840,95 @@
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
 
-            // --- HELPERS & LOGIC ---
-            const saveDataToLocalStorage = () => {
-                const appData = { partners, schemes, catalogues, podcasts, contactDetails, quarterStartDate, quarterEndDate };
-                localStorage.setItem('jirawalaAxisData', JSON.stringify(appData));
-            };
+          // --- HELPERS & LOGIC ---
+const saveDataToLocalStorage = async () => {
+    const appData = { partners, schemes, catalogues, podcasts, contactDetails, quarterStartDate, quarterEndDate };
+    localStorage.setItem('jirawalaAxisData', JSON.stringify(appData));
+    
+    // Also save to cloud
+    try {
+        await fetch('https://broad-shadow-8c92.viragitis.workers.dev/data', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appData)
+        });
+    } catch (error) {
+        console.log('Cloud save failed, using local only');
+    }
+};
 
-            const loadDataFromLocalStorage = () => {
-                const savedData = localStorage.getItem('jirawalaAxisData');
-                if (savedData) {
-                    const appData = JSON.parse(savedData);
-                    partners = appData.partners || initialData.partners;
-                    schemes = appData.schemes || initialData.schemes;
-                    catalogues = appData.catalogues || initialData.catalogues;
-                    podcasts = appData.podcasts || initialData.podcasts;
-                    contactDetails = appData.contactDetails || initialData.contactDetails;
-                    quarterStartDate = appData.quarterStartDate || initialData.quarterStartDate;
-                    quarterEndDate = appData.quarterEndDate || initialData.quarterEndDate;
-                } else {
-                    // Correctly assign to local variables, not the window object
-                    partners = initialData.partners;
-                    schemes = initialData.schemes;
-                    catalogues = initialData.catalogues;
-                    podcasts = initialData.podcasts;
-                    contactDetails = initialData.contactDetails;
-                    quarterStartDate = initialData.quarterStartDate;
-                    quarterEndDate = initialData.quarterEndDate;
-                }
-            };
-            
-            const hasContributionsForMonths = (partner, monthCount) => {
-                if (!partner.contributions || partner.contributions.length === 0) return false;
-                const uniqueMonths = new Set(partner.contributions.map(c => new Date(c.date).getMonth()));
-                return uniqueMonths.size >= monthCount;
-            };
+const loadDataFromLocalStorage = async () => {
+    // Try to load from cloud first
+    try {
+        const response = await fetch('https://broad-shadow-8c92.viragitis.workers.dev/data');
+        if (response.ok) {
+            const cloudData = await response.json();
+            if (Object.keys(cloudData).length > 0) {
+                partners = cloudData.partners || initialData.partners;
+                schemes = cloudData.schemes || initialData.schemes;
+                catalogues = cloudData.catalogues || initialData.catalogues;
+                podcasts = cloudData.podcasts || initialData.podcasts;
+                contactDetails = cloudData.contactDetails || initialData.contactDetails;
+                quarterStartDate = cloudData.quarterStartDate || initialData.quarterStartDate;
+                quarterEndDate = cloudData.quarterEndDate || initialData.quarterEndDate;
+                return;
+            }
+        }
+    } catch (error) {
+        console.log('Loading from local storage instead');
+    }
+    
+    // Fallback to local storage
+    const savedData = localStorage.getItem('jirawalaAxisData');
+    if (savedData) {
+        const appData = JSON.parse(savedData);
+        partners = appData.partners || initialData.partners;
+        schemes = appData.schemes || initialData.schemes;
+        catalogues = appData.catalogues || initialData.catalogues;
+        podcasts = appData.podcasts || initialData.podcasts;
+        contactDetails = appData.contactDetails || initialData.contactDetails;
+        quarterStartDate = appData.quarterStartDate || initialData.quarterStartDate;
+        quarterEndDate = appData.quarterEndDate || initialData.quarterEndDate;
+    } else {
+        // Correctly assign to local variables, not the window object
+        partners = initialData.partners;
+        schemes = initialData.schemes;
+        catalogues = initialData.catalogues;
+        podcasts = initialData.podcasts;
+        contactDetails = initialData.contactDetails;
+        quarterStartDate = initialData.quarterStartDate;
+        quarterEndDate = initialData.quarterEndDate;
+    }
+};
 
-            const achievements = [
-                { id: 'first-blood', name: 'First Contribution', icon: '🎯', condition: (p) => p.contributions.length >= 1 },
-                { id: 'century', name: 'Century Club', icon: '💯', condition: (p) => p.points >= 10000 },
-                { id: 'consistency-king', name: 'Consistent Contributor', icon: '📅', condition: (p) => hasContributionsForMonths(p, 3) },
-                { id: 'mega-dealer', name: 'Mega Dealer', icon: '🏆', condition: (p) => p.type === 'Dealer' && p.points >= 25000 },
-                { id: 'referral-master', name: 'Referral Master', icon: '🤝', condition: (p) => p.referrals >= 5 },
-            ];
-            
-            const getPartnerAchievements = (partner) => achievements.filter(ach => ach.condition(partner));
+const hasContributionsForMonths = (partner, monthCount) => {
+    if (!partner.contributions || partner.contributions.length === 0) return false;
+    const uniqueMonths = new Set(partner.contributions.map(c => new Date(c.date).getMonth()));
+    return uniqueMonths.size >= monthCount;
+};
 
-            const getCurrentQuarter = () => {
-                const now = new Date();
-                const quarter = Math.floor(now.getMonth() / 3) + 1;
-                return `Q${quarter} ${now.getFullYear()}`;
-            };
+const achievements = [
+    { id: 'first-blood', name: 'First Contribution', icon: '🎯', condition: (p) => p.contributions.length >= 1 },
+    { id: 'century', name: 'Century Club', icon: '💯', condition: (p) => p.points >= 10000 },
+    { id: 'consistency-king', name: 'Consistent Contributor', icon: '📅', condition: (p) => hasContributionsForMonths(p, 3) },
+    { id: 'mega-dealer', name: 'Mega Dealer', icon: '🏆', condition: (p) => p.type === 'Dealer' && p.points >= 25000 },
+    { id: 'referral-master', name: 'Referral Master', icon: '🤝', condition: (p) => p.referrals >= 5 },
+];
 
-            const getLastQuarterPoints = (partner) => {
-                if (partner.history && partner.history.length > 0) {
-                    return partner.history[partner.history.length - 1].points;
-                }
-                return 0;
-            };
+const getPartnerAchievements = (partner) => achievements.filter(ach => ach.condition(partner));
 
+const getCurrentQuarter = () => {
+    const now = new Date();
+    const quarter = Math.floor(now.getMonth() / 3) + 1;
+    return `Q${quarter} ${now.getFullYear()}`;
+};
+
+const getLastQuarterPoints = (partner) => {
+    if (partner.history && partner.history.length > 0) {
+        return partner.history[partner.history.length - 1].points;
+    }
+    return 0;
+};
             // --- PAGE NAVIGATION (SPA LOGIC) ---
             const showPage = (hash) => {
                 const targetId = hash ? hash.substring(1) : 'home';
@@ -2309,3 +2340,4 @@ document.getElementById('logout-button').addEventListener('click', () => {
 </body>
 
 </html>
+
