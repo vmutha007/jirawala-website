@@ -821,7 +821,16 @@
             const initialData = {
                 partners: [],
                 schemes: [],
-                catalogues: [],
+                catalogues: [
+                    {
+                        id: 1,
+                        title: 'Kitchen & Furniture Fittings_MRP_Edition 5.1',
+                        // Place the PDF file in the project at ./catalogues/Kitchen_Furniture_Fittings_MRP_Edition_5.1.pdf
+                        file: './catalogues/Kitchen_Furniture_Fittings_MRP_Edition_5.1.pdf',
+                        // Optional cover image to display as catalogue cover. Place at ./catalogues/Kitchen_Furniture_Fittings_MRP_Edition_5.1-cover.jpg
+                        cover: './catalogues/Kitchen_Furniture_Fittings_MRP_Edition_5.1-cover.jpg'
+                    }
+                ],
                 podcasts: [],
                 contactDetails: { supply: '', phone: '', address: '', email: '' },
                 quarterStartDate: '',
@@ -958,6 +967,180 @@ const loadDataFromLocalStorage = async () => {
                 // clear value to allow re-uploading same file
                 ev.target.value = '';
             });
+
+            // --- Catalogue rendering and helpers (override / improve) ---
+            const isDataUrl = (s) => typeof s === 'string' && s.startsWith('data:');
+            const getDataUrlMime = (dataUrl) => {
+                if (!dataUrl || !dataUrl.startsWith('data:')) return '';
+                const match = dataUrl.match(/^data:([^;]+);/);
+                return match ? match[1] : '';
+            };
+            const isImageMime = (mime) => /^image\//.test(mime);
+
+            // Render public catalogue list (cards)
+            window.renderCatalogues = function() {
+                const container = document.getElementById('catalogue-list');
+                if (!container) return;
+                container.innerHTML = catalogues.map(c => {
+                    const file = c.file || '';
+                    const coverSrc = c.cover || file;
+                    const coverMime = isDataUrl(coverSrc) ? getDataUrlMime(coverSrc) : '';
+                    const coverIsImage = coverMime ? isImageMime(coverMime) : (/^https?:\/\/.+\.(png|jpe?g|webp|gif)$/i.test(coverSrc));
+                    const coverHtml = coverSrc ? (coverIsImage ? `<img src="${coverSrc}" alt="${c.title || 'Catalogue'}" class="w-full h-40 object-cover rounded-md">` : `<div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-md text-gray-600">📄 ${c.title || 'Catalogue'}</div>`) : `<div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-md text-gray-400">No file</div>`;
+                    // Provide a download link (for data URLs and same-origin urls). For external cross-origin, browser may ignore download attribute.
+                    const downloadBtn = file ? `<button data-id="${c.id}" class="download-catalogue-btn px-3 py-2 rounded bg-white border hover:bg-gray-50 text-sm">Download</button>` : '';
+                    return `
+                        <div class="card p-4">
+                            ${coverHtml}
+                            <div class="mt-3 flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold text-md">${c.title || 'Untitled'}</div>
+                                    <div class="text-xs text-gray-500">${c.id || ''}</div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    ${downloadBtn}
+                                    <button data-id="${c.id}" class="edit-catalogue-btn px-3 py-2 rounded bg-blue-600 text-white text-sm">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                lucide.createIcons();
+            };
+
+            // Render admin catalogues table
+            window.renderAdminCatalogues = function() {
+                const container = document.getElementById('admin-catalogues-table-container');
+                if (!container) return;
+                if (catalogues.length === 0) {
+                    container.innerHTML = `<div class="p-6 text-sm text-gray-500">No catalogues available.</div>`;
+                    return;
+                }
+                container.innerHTML = `
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 text-xs text-gray-600"><tr><th class="p-2 text-left">Title</th><th class="p-2">Preview</th><th class="p-2">Actions</th></tr></thead>
+                        <tbody>
+                        ${catalogues.map(c => {
+                            const file = c.file || '';
+                            const coverSrc = c.cover || file;
+                            const coverMime = isDataUrl(coverSrc) ? getDataUrlMime(coverSrc) : '';
+                            const coverIsImage = coverMime ? isImageMime(coverMime) : (/^https?:\/\/.+\.(png|jpe?g|webp|gif)$/i.test(coverSrc));
+                            const preview = coverSrc ? (coverIsImage ? `<img src="${coverSrc}" class="w-20 h-12 object-cover rounded"/>` : `<div class="w-20 h-12 flex items-center justify-center bg-gray-50 rounded">📄</div>`) : `<div class="w-20 h-12 bg-gray-50 rounded"></div>`;
+                            return `<tr class="border-b"><td class="p-2">${c.title || 'Untitled'}</td><td class="p-2">${preview}</td><td class="p-2"><div class="flex gap-2"><button data-id="${c.id}" class="download-catalogue-btn px-3 py-1 rounded border">Download</button><button data-id="${c.id}" class="edit-catalogue-btn px-3 py-1 rounded bg-blue-600 text-white">Edit</button><button data-id="${c.id}" class="delete-catalogue-btn px-3 py-1 rounded border text-red-600">Delete</button></div></td></tr>`;
+                        }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            };
+
+            // Download handler for catalogue files (delegated)
+            document.addEventListener('click', (e) => {
+                const dl = e.target.closest('.download-catalogue-btn');
+                if (!dl) return;
+                const id = parseInt(dl.dataset.id);
+                const c = catalogues.find(x => x.id === id);
+                if (!c || !c.file) {
+                    showToast('No file available to download.', true);
+                    return;
+                }
+                // If data URL or same-origin, simply create an anchor and click
+                const a = document.createElement('a');
+                a.href = c.file;
+                // Guess filename from title and mime
+                let ext = '';
+                if (isDataUrl(c.file)) {
+                    const mime = getDataUrlMime(c.file);
+                    if (mime === 'application/pdf') ext = '.pdf';
+                    else if (/image\//.test(mime)) ext = '.jpg';
+                } else {
+                    const m = c.file.match(/\.([a-z0-9]+)(?:\?|$)/i);
+                    ext = m ? `.${m[1]}` : '';
+                }
+                a.download = ((c.title || 'catalogue').replace(/[^a-z0-9-_]/gi, '_')) + ext;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            });
+
+            // Override the catalogue modal to include preview behaviour
+            window.openCatalogueModal = function(catalogueId = null) {
+                 const c = catalogueId ? catalogues.find(c => c.id === catalogueId) : {};
+                 modalForm.dataset.entity = 'catalogue';
+                 modalForm.dataset.id = catalogueId || '';
+                 modalTitle.textContent = catalogueId ? "Edit Catalogue" : "Add New Catalogue";
+                 modalContent.innerHTML = `
+                    <div><label class="block mb-1 font-medium">Catalogue Title</label><input type="text" id="modal-catalogue-title" class="w-full p-2 border rounded-lg" required value="${c.title || ''}"></div>
+                    <div><label class="block mb-1 font-medium">File URL</label><input type="url" id="modal-catalogue-file" class="w-full p-2 border rounded-lg" required value="${c.file || ''}"></div>
+                    <div class="grid grid-cols-1 gap-2 md:grid-cols-2"><div><label class="block mb-1 font-medium">Or Upload File</label><input type="file" id="modal-catalogue-file-input" class="w-full p-2 border rounded-lg" accept="application/pdf,image/*" /></div><div id="modal-catalogue-preview-container" class="flex items-center justify-center"></div></div>
+                 `;
+                 modalFooter.innerHTML = `<button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Changes</button>`;
+                 openModal();
+
+                 const fileInput = document.getElementById('modal-catalogue-file-input');
+                 const fileUrlInput = document.getElementById('modal-catalogue-file');
+                 const previewContainer = document.getElementById('modal-catalogue-preview-container');
+
+                 // Function to update preview based on current fileUrlInput value
+                 const updatePreview = () => {
+                     const val = fileUrlInput.value || '';
+                     previewContainer.innerHTML = '';
+                     if (!val) {
+                         previewContainer.innerHTML = `<div class="text-sm text-gray-500">No file selected</div>`;
+                         return;
+                     }
+                     if (isDataUrl(val)) {
+                         const mime = getDataUrlMime(val);
+                         if (isImageMime(mime)) {
+                             previewContainer.innerHTML = `<img src="${val}" class="w-40 h-28 object-cover rounded"/>`;
+                         } else if (mime === 'application/pdf') {
+                             previewContainer.innerHTML = `<div class="w-40 h-28 flex items-center justify-center bg-gray-50 rounded">📄 PDF</div>`;
+                         } else {
+                             previewContainer.innerHTML = `<div class="text-sm text-gray-500">File uploaded</div>`;
+                         }
+                     } else {
+                         // External URL - try to guess
+                         if (/\.(png|jpe?g|webp|gif)$/i.test(val)) {
+                             previewContainer.innerHTML = `<img src="${val}" class="w-40 h-28 object-cover rounded"/>`;
+                         } else {
+                             previewContainer.innerHTML = `<div class="w-40 h-28 flex items-center justify-center bg-gray-50 rounded">🔗 Link</div>`;
+                         }
+                     }
+                 };
+
+                 // When a file is selected, read as data URL (with size check/compression) and set the fileUrlInput
+                 fileInput?.addEventListener('change', async (ev) => {
+                     const file = ev.target.files && ev.target.files[0];
+                     if (!file) return;
+                     const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB
+                     if (file.size > MAX_RAW_BYTES) {
+                         showToast('File too large. Maximum allowed size is 2 MB.', true);
+                         return;
+                     }
+                     if (file.type.startsWith('image/')) {
+                         showToast('Compressing image...');
+                         try {
+                             const compressed = await compressImageFile(file, 1000000);
+                             fileUrlInput.value = compressed;
+                         } catch (err) {
+                             showToast('Failed to process image.', true);
+                         }
+                     } else {
+                         const reader = new FileReader();
+                         reader.onload = () => {
+                             const result = reader.result;
+                             if (typeof result === 'string') fileUrlInput.value = result;
+                         };
+                         reader.readAsDataURL(file);
+                     }
+                     updatePreview();
+                 });
+
+                 // Update preview when URL input is changed programmatically or manually
+                 fileUrlInput.addEventListener('input', updatePreview);
+
+                 // Initialize preview
+                 updatePreview();
+            };
 
 const hasContributionsForMonths = (partner, monthCount) => {
     if (!partner.contributions || partner.contributions.length === 0) return false;
@@ -2572,6 +2755,34 @@ document.getElementById('logout-button').addEventListener('click', () => {
             renderAll(); 
             lucide.createIcons();
         });
+            // --- Compatibility shims & safety nets for catalogue behavior ---
+            // Ensure global functions exist under both window.* and plain names so other code calls succeed
+            try {
+                if (typeof window.renderCatalogues === 'function' && typeof renderCatalogues !== 'function') {
+                    window.renderCatalogues = window.renderCatalogues.bind(window);
+                    function renderCatalogues() { return window.renderCatalogues(); }
+                }
+                if (typeof window.renderAdminCatalogues === 'function' && typeof renderAdminCatalogues !== 'function') {
+                    window.renderAdminCatalogues = window.renderAdminCatalogues.bind(window);
+                    function renderAdminCatalogues() { return window.renderAdminCatalogues(); }
+                }
+                if (typeof window.openCatalogueModal === 'function' && typeof openCatalogueModal !== 'function') {
+                    window.openCatalogueModal = window.openCatalogueModal.bind(window);
+                    function openCatalogueModal(id) { return window.openCatalogueModal(id); }
+                }
+            } catch (err) {
+                // ignore
+            }
+
+            // As an extra safety: if a catalogue modal save occurred but the UI didn't refresh,
+            // listen for modal close and force a render/save to persist recent uploads.
+            const adminModalEl = document.getElementById('admin-modal');
+            if (adminModalEl) {
+                adminModalEl.addEventListener('transitionend', () => {
+                    try { saveDataToLocalStorage(); if (typeof renderAdminCatalogues === 'function') renderAdminCatalogues(); if (typeof renderCatalogues === 'function') renderCatalogues(); } catch (e) {}
+                });
+            }
+
     </script>
 </body>
 
