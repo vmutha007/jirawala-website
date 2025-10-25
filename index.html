@@ -1907,20 +1907,21 @@ const getLastQuarterPoints = (partner) => {
             };
 
             // --- INITIALIZATION ---
-            const init = () => {
-                loadDataFromLocalStorage();
-                renderPartners();
-                renderLeaderboard();
-                renderScheme();
-                renderHeroTicker();
-                renderCatalogues();
-                renderPodcasts();
-                renderContactInfo();
-                showPage(window.location.hash || '#home');
-            };
-            
-            // Run initialization
-            init();
+            // --- INITIALIZATION ---
+const init = async () => {
+    await loadDataFromLocalStorage();  // Wait for data to load!
+    renderPartners();
+    renderLeaderboard();
+    renderScheme();
+    renderHeroTicker();
+    renderCatalogues();
+    renderPodcasts();
+    renderContactInfo();
+    showPage(window.location.hash || '#home');
+};
+
+// Run initialization
+init();
 
             // Create Lucide icons after initialization
             lucide.createIcons();
@@ -2340,4 +2341,5 @@ document.getElementById('logout-button').addEventListener('click', () => {
 </body>
 
 </html>
+
 
