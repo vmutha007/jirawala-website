@@ -186,12 +186,23 @@
     @media (min-width: 768px) { .partner-avatar { width: 72px; height: 72px; margin: 0; } }
     .partner-avatar img { width: 100%; height: 100%; object-fit: cover; display:block; }
     /* colored ring variants for ranking/status */
-    .partner-avatar.ring { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(255,69,0,0.12); }
-    .partner-avatar.ring-gold { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(250, 204, 21, 0.20); }
-    .partner-avatar.ring-silver { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(156,163,175,0.20); }
-    .partner-avatar.ring-bronze { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(195,127,63,0.18); }
-    .partner-avatar.ring-elite { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(139,92,246,0.18); }
-    .partner-avatar.ring-new { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(34,197,94,0.12); }
+    .partner-avatar.ring { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(255,69,0,0.18); }
+    .partner-avatar.ring-gold { box-shadow: 0 0 0 3px #fff, 0 0 0 8px rgba(250, 204, 21, 0.28); }
+    .partner-avatar.ring-silver { box-shadow: 0 0 0 3px #fff, 0 0 0 8px rgba(156,163,175,0.28); }
+    .partner-avatar.ring-bronze { box-shadow: 0 0 0 3px #fff, 0 0 0 8px rgba(195,127,63,0.26); }
+    .partner-avatar.ring-elite { box-shadow: 0 0 0 3px #fff, 0 0 0 8px rgba(139,92,246,0.28); }
+    .partner-avatar.ring-new { box-shadow: 0 0 0 3px #fff, 0 0 0 8px rgba(34,197,94,0.22); }
+    /* make the avatar container positioned so we can add animated ring overlays */
+    .partner-avatar { position: relative; }
+    /* animated rotating ring using a pseudo-element for a brighter, funky look */
+    .partner-avatar::after { content: ''; position: absolute; inset: -6px; border-radius: 9999px; pointer-events: none; opacity: 0.95; transform-origin: center; }
+    .partner-avatar.ring::after { background: conic-gradient(from 0deg, rgba(255,69,0,0.35), rgba(255,140,60,0.25), rgba(255,69,0,0.35)); animation: ring-spin 6s linear infinite; }
+    .partner-avatar.ring-gold::after { background: conic-gradient(from 0deg, rgba(250,204,21,0.35), rgba(255,226,102,0.22), rgba(250,204,21,0.35)); animation: ring-spin 6s linear infinite; }
+    .partner-avatar.ring-silver::after { background: conic-gradient(from 0deg, rgba(200,200,205,0.32), rgba(220,220,225,0.18), rgba(200,200,205,0.32)); animation: ring-spin 6s linear reverse infinite; }
+    .partner-avatar.ring-bronze::after { background: conic-gradient(from 0deg, rgba(195,127,63,0.34), rgba(223,172,132,0.18), rgba(195,127,63,0.34)); animation: ring-spin 7s linear infinite; }
+    .partner-avatar.ring-elite::after { background: conic-gradient(from 0deg, rgba(139,92,246,0.34), rgba(185,132,255,0.2), rgba(139,92,246,0.34)); animation: ring-spin 5.5s linear infinite; }
+    .partner-avatar.ring-new::after { background: conic-gradient(from 0deg, rgba(34,197,94,0.34), rgba(102,255,166,0.18), rgba(34,197,94,0.34)); animation: ring-spin 6.5s linear reverse infinite; }
+    @keyframes ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .partner-avatar:hover { transform: translateY(-3px); transition: transform 120ms ease; }
     /* also allow these ring classes on larger image containers (detail view) */
     .ring-gold { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(250, 204, 21, 0.18); }
@@ -404,7 +415,7 @@
                                 <i data-lucide="building" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i>
                                 <div>
                                     <strong class="block mb-2">Who We Are</strong>
-                                    <p class="text-gray-600">Jirawala Axis is your central hub for premium architectural and interior solutions. We simplify the sourcing process for design professionals and builders by providing a complete ecosystem of essential materials under one trusted roof.</p>
+                                    <p class="text-gray-600">We are a leading supplier of high-quality architectural hardware, plywood, and decorative laminates.</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-4">
@@ -1388,22 +1399,26 @@ const getYouTubeId = (input) => {
                  });
 
                  fileInputAuto?.addEventListener('change', async (ev) => {
-                     const file = ev.target.files && ev.target.files[0];
-                     if (!file) return;
-                     const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB limit
-                     if (file.size > MAX_RAW_BYTES) {
-                         showToast('File too large. Maximum allowed size is 2 MB.', true);
-                         return;
-                     }
-                     try {
-                         let dataUrl;
-                         // If a compression helper exists globally, prefer it for images
-                         if (file.type.startsWith('image/') && typeof window.compressImageFile === 'function') {
-                             showToast('Processing image...');
-                             dataUrl = await window.compressImageFile(file, 1000000);
-                         } else {
-                             dataUrl = await readAsDataURL(file);
-                         }
+                    const file = ev.target.files && ev.target.files[0];
+                    if (!file) return;
+                    const MAX_RAW_BYTES = 5 * 1024 * 1024; // 5 MB hard limit
+                    const COMPRESS_THRESHOLD = 2 * 1024 * 1024; // 2 MB threshold to compress
+                    if (file.size > MAX_RAW_BYTES) {
+                        showToast('File too large. Maximum allowed size is 5 MB.', true);
+                        return;
+                    }
+                    try {
+                        let dataUrl;
+                        // If image and larger than COMPRESS_THRESHOLD, compress down to ~1MB
+                        if (file.type.startsWith('image/') && typeof window.compressImageFile === 'function' && file.size > COMPRESS_THRESHOLD) {
+                            showToast('Compressing image to optimize upload...');
+                            dataUrl = await window.compressImageFile(file, 1000000);
+                        } else if (file.type.startsWith('image/') && typeof readAsDataURL === 'function') {
+                            // Keep smaller images as-is
+                            dataUrl = await readAsDataURL(file);
+                        } else {
+                            dataUrl = await readAsDataURL(file);
+                        }
 
                          if (typeof dataUrl !== 'string') {
                              showToast('Failed to read file.', true);
@@ -1478,17 +1493,28 @@ const getYouTubeId = (input) => {
                  fileInput?.addEventListener('change', async (ev) => {
                      const file = ev.target.files && ev.target.files[0];
                      if (!file) return;
-                     const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB
+                     const MAX_RAW_BYTES = 5 * 1024 * 1024; // 5 MB hard limit
+                     const COMPRESS_THRESHOLD = 2 * 1024 * 1024; // compress if >2MB
                      if (file.size > MAX_RAW_BYTES) {
-                         showToast('File too large. Maximum allowed size is 2 MB.', true);
+                         showToast('File too large. Maximum allowed size is 5 MB.', true);
                          return;
                      }
                      if (file.type.startsWith('image/')) {
-                         showToast('Compressing image...');
                          try {
-                             const compressed = await compressImageFile(file, 1000000);
-                             fileUrlInput.value = compressed;
+                             if (typeof compressImageFile === 'function' && file.size > COMPRESS_THRESHOLD) {
+                                 showToast('Compressing image to reduce size...');
+                                 const compressed = await compressImageFile(file, 1000000);
+                                 fileUrlInput.value = compressed;
+                             } else {
+                                 const reader = new FileReader();
+                                 reader.onload = () => {
+                                     const result = reader.result;
+                                     if (typeof result === 'string') fileUrlInput.value = result;
+                                 };
+                                 reader.readAsDataURL(file);
+                             }
                          } catch (err) {
+                             console.error(err);
                              showToast('Failed to process image.', true);
                          }
                      } else {
@@ -1509,15 +1535,16 @@ const getYouTubeId = (input) => {
                  coverFileInput?.addEventListener('change', async (ev) => {
                      const file = ev.target.files && ev.target.files[0];
                      if (!file) return;
-                     const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB
+                     const MAX_RAW_BYTES = 5 * 1024 * 1024; // 5 MB
+                     const COMPRESS_THRESHOLD = 2 * 1024 * 1024;
                      if (file.size > MAX_RAW_BYTES) {
-                         showToast('File too large. Maximum allowed size is 2 MB.', true);
+                         showToast('File too large. Maximum allowed size is 5 MB.', true);
                          return;
                      }
                      try {
-                         if (file.type.startsWith('image/') && typeof compressImageFile === 'function') {
+                         if (file.type.startsWith('image/') && typeof compressImageFile === 'function' && file.size > COMPRESS_THRESHOLD) {
                              showToast('Compressing cover image...');
-                             const compressed = await compressImageFile(file, 1000000);
+                             const compressed = await window.compressImageFile(file, 1000000);
                              coverUrlInput.value = compressed;
                          } else if (file.type.startsWith('image/')) {
                              const reader = new FileReader();
@@ -1710,8 +1737,12 @@ const getLastQuarterPoints = (partner) => {
                         </div>
                     ` : '';
 
+                    // Provide a small rank badge for the top 3
+                    const rankBadge = topIndex >= 0 && topIndex < 3 ? `<div class="absolute left-3 -top-2 text-sm font-bold px-2 py-1 rounded-full ${topIndex === 0 ? 'bg-yellow-400 text-white' : topIndex === 1 ? 'bg-gray-300 text-black' : 'bg-amber-500 text-white'}">#${topIndex + 1}</div>` : '';
+
                     return `
-                    <div class="card flex flex-col items-center text-center p-4 cursor-pointer hover:shadow-lg transition-shadow" data-id="${p.id}">
+                    <div class="card flex flex-col items-center text-center p-4 cursor-pointer hover:shadow-lg transition-shadow relative" data-id="${p.id}">
+                        ${rankBadge}
                         ${avatarHtml}
                         <div class="mt-3 w-full">
                             <h3 class="font-bold text-sm truncate" title="${p.name}">${p.name}</h3>
@@ -2641,17 +2672,30 @@ const getLastQuarterPoints = (partner) => {
                 photoFileInput?.addEventListener('change', async (ev) => {
                     const file = ev.target.files && ev.target.files[0];
                     if (!file) return;
-                    const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB
+                    const MAX_RAW_BYTES = 5 * 1024 * 1024; // 5 MB
+                    const COMPRESS_THRESHOLD = 2 * 1024 * 1024; // compress if >2MB
                     if (file.size > MAX_RAW_BYTES) {
-                        showToast('File too large. Maximum allowed size is 2 MB.', true);
+                        showToast('File too large. Maximum allowed size is 5 MB.', true);
                         return;
                     }
                     try {
                         if (file.type.startsWith('image/')) {
-                            showToast('Compressing image...');
-                            const compressedDataUrl = await compressImageFile(file, 1000000); // target ~1MB
-                            document.getElementById('modal-partner-photo').value = compressedDataUrl;
-                            showToast('Image uploaded and compressed.');
+                            if (typeof compressImageFile === 'function' && file.size > COMPRESS_THRESHOLD) {
+                                showToast('Compressing image...');
+                                const compressedDataUrl = await compressImageFile(file, 1000000); // target ~1MB
+                                document.getElementById('modal-partner-photo').value = compressedDataUrl;
+                                showToast('Image uploaded and compressed.');
+                            } else {
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                    const result = reader.result;
+                                    if (typeof result === 'string') {
+                                        document.getElementById('modal-partner-photo').value = result;
+                                    }
+                                };
+                                reader.readAsDataURL(file);
+                                showToast('Image uploaded.');
+                            }
                         } else {
                             // Non-image files: just read as data URL (if small enough)
                             const reader = new FileReader();
@@ -2942,6 +2986,19 @@ const init = async () => {
 
 // Run initialization
 init();
+
+            // Periodic refresh & local data clear: clear local stored app data and reload every 5 minutes
+            try {
+                const FIVE_MIN = 5 * 60 * 1000;
+                setInterval(() => {
+                    try {
+                        // Only clear the app's stored data key(s) to avoid wiping unrelated localStorage entries
+                        localStorage.removeItem('jirawalaAxisData');
+                    } catch (e) { /* ignore */ }
+                    // Reload the page for everyone periodically
+                    try { window.location.reload(); } catch (e) {}
+                }, FIVE_MIN);
+            } catch (e) { /* ignore */ }
 
             // Create Lucide icons after initialization
             lucide.createIcons();
@@ -3554,4 +3611,3 @@ document.getElementById('logout-button').addEventListener('click', () => {
 </body>
 
 </html>
-
