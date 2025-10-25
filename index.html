@@ -285,12 +285,22 @@
         /* Header logo default sizing */
         .header-logo { max-height: 48px; width: auto; display: block; }
 
-        /* iOS rendering/transform fix for header images to avoid blurring and cropping on WebKit */
+        /* iOS image rendering fixes: avoid translateZ (can crop on some WebKit), use backface-visibility and intrinsic sizing */
         header img {
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
+            -webkit-transform: none !important;
+            transform: none !important;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-user-drag: none;
             image-rendering: -webkit-optimize-contrast;
+            display: block;
+            max-width: 100%;
+            width: auto;
+            height: auto;
         }
+
+        /* Ensure header/nav reserves space for the logo to avoid clipping */
+        header nav { min-height: 56px; align-items: center; }
         /* Small helper to hide scrollbar on the mobile quicknav while keeping it scrollable */
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
