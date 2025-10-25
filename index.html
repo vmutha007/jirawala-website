@@ -224,7 +224,10 @@
     /* Global loader & skeleton styles */
     #global-loader { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(255,255,255,0.9), rgba(250,250,250,0.85)); z-index:9999; }
     .loader-inner { display:flex; flex-direction:column; align-items:center; gap:14px; }
-    .loader-logo { width:84px; height:84px; border-radius:20px; background:linear-gradient(135deg,var(--primary-color),#7c3aed); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:20px; box-shadow:0 10px 30px rgba(0,0,0,0.12); }
+    .loader-logo { width:84px; height:84px; border-radius:20px; background:linear-gradient(135deg,var(--primary-color),#7c3aed); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:20px; box-shadow:0 10px 30px rgba(0,0,0,0.12); overflow:hidden; }
+    .loader-logo img { width:100%; height:100%; object-fit:contain; }
+    .loader-logo.spin img { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .loader-dots { display:flex; gap:6px; }
     .loader-dots span { width:12px; height:12px; background:rgba(0,0,0,0.12); border-radius:50%; display:inline-block; animation:loader-bob 1s infinite ease-in-out; }
     .loader-dots span:nth-child(2){ animation-delay:0.12s; }
@@ -276,7 +279,7 @@
     <!-- Global Loader (visible until init completes) -->
     <div id="global-loader">
         <div class="loader-inner">
-            <div class="loader-logo">JA</div>
+            <div class="loader-logo spin"><img src="./Jirwala Logo.png" alt="Jirawala Axis Logo" /></div>
             <div class="loader-dots"><span></span><span></span><span></span></div>
         </div>
     </div>
@@ -285,12 +288,22 @@
     <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="flex items-center gap-3">
-                <img src="./Jirwala Logo.png" alt="Jirawala Axis Logo" class="h-10 w-10 rounded-md">
+                <img src="./Jirwala Logo.png" alt="Jirawala Axis Logo" class="h-12 w-12 object-contain" style="max-width:56px;" />
                 <div>
                     <span class="text-2xl font-bold" style="color: orangered;">Jirawala Axis</span>
                     <p class="text-xs text-gray-500 font-semibold tracking-wide -mt-1">Authorised Distributor for Ozone</p>
                 </div>
             </a>
+            <!-- Header quick-nav moved from hero: compact single-line buttons to jump to important sections (mobile-only) -->
+            <div id="hero-mobile-quicknav" class="hidden md:hidden ml-4">
+                <div class="bg-white/90 rounded-full px-2 py-1 shadow-md flex gap-2 overflow-x-auto max-w-lg">
+                    <a href="#portfolio" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Portfolio</a>
+                    <a href="#catalogues" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Catalogues</a>
+                    <a href="#podcasts" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Podcasts</a>
+                    <a href="#leaderboard" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Leaderboard</a>
+                    <a href="#contact" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Contact</a>
+                </div>
+            </div>
             <div class="hidden md:flex items-center space-x-8 font-semibold">
                 <a href="#home" class="nav-link active">Home</a>
                 <a href="#portfolio" class="nav-link">Partners</a>
@@ -329,16 +342,7 @@
                     <h1 class="text-4xl md:text-6xl font-extrabold leading-tight hero-text">Jirawala Axis</h1>
                     <p class="mt-4 text-lg md:text-xl max-w-2xl hero-text">Supplying premium hardware and materials to bring architectural and design dreams to life.</p>
                 </div>
-                <!-- Mobile quick-nav: compact single-line buttons to jump to important sections -->
-                <div id="hero-mobile-quicknav" class="absolute bottom-16 left-0 w-full z-30 flex justify-center md:hidden px-4">
-                    <div class="bg-white/90 rounded-full px-2 py-1 shadow-md flex gap-2 overflow-x-auto max-w-lg">
-                        <a href="#portfolio" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Portfolio</a>
-                        <a href="#catalogues" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Catalogues</a>
-                        <a href="#podcasts" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Podcasts</a>
-                        <a href="#leaderboard" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Leaderboard</a>
-                        <a href="#contact" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Contact</a>
-                    </div>
-                </div>
+                
                 <div id="hero-ticker-container" class="absolute bottom-0 left-0 w-full bg-black/50 backdrop-blur-sm overflow-hidden py-3 text-white text-sm font-semibold whitespace-nowrap z-20">
                     <div id="hero-ticker-text" class="animate-marquee"></div>
                 </div>
@@ -1011,7 +1015,7 @@ const saveDataToLocalStorage = async () => {
             body: JSON.stringify(appData)
         });
     } catch (error) {
-        console.log('Cloud save failed, using local only');
+        console.log('Cloud save failed, using local only', error);
     }
 };
 
@@ -1034,7 +1038,7 @@ const loadDataFromLocalStorage = async () => {
             }
         }
     } catch (error) {
-        console.log('Loading from local storage instead');
+        console.log('Cloud fetch failed, falling back to localStorage:', error);
     }
     
     // Fallback to local storage
@@ -1688,7 +1692,10 @@ const getLastQuarterPoints = (partner) => {
                     textEl.innerHTML = schemeContent.repeat(3); // Repeat 3 times to ensure continuous scroll
                     container.classList.remove('hidden');
                     container.style.display = 'block'; // Ensure container is visible
-                    textEl.style.animation = 'marquee 25s linear infinite'; // Reset animation
+                    // Reset CSS animation by toggling the class (force reflow in between)
+                    textEl.classList.remove('animate-marquee');
+                    void textEl.offsetWidth; // Force reflow
+                    textEl.classList.add('animate-marquee');
                     lucide.createIcons();
                 } else {
                     container.classList.add('hidden');
@@ -2748,7 +2755,15 @@ init();
             lucide.createIcons();
 
             // --- EVENT LISTENERS ---
-            document.getElementById('portfolio-search').addEventListener('input', (e) => { searchTerm = e.target.value.toLowerCase(); renderPartners(); });
+            // Debounced portfolio search to avoid firing on every keystroke
+            let searchTimeout;
+            document.getElementById('portfolio-search').addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchTerm = e.target.value.toLowerCase();
+                    renderPartners();
+                }, 300);
+            });
             
             document.querySelectorAll('.portfolio-filter-btn').forEach(btn => btn.addEventListener('click', (e) => {
                 document.querySelector('.portfolio-filter-btn.active').classList.remove('active');
@@ -2875,6 +2890,7 @@ document.getElementById('logout-button').addEventListener('click', () => {
             document.getElementById('add-partner-btn').addEventListener('click', () => openPartnerModal());
             document.getElementById('add-podcast-btn').addEventListener('click', () => openPodcastModal());
             document.getElementById('add-catalogue-btn').addEventListener('click', () => openCatalogueModal());
+            document.getElementById('add-achievement-btn')?.addEventListener('click', () => openAchievementModal());
             
             // Render financial dashboard when switching to finance panel
             document.querySelectorAll('.admin-nav-btn').forEach(btn => {
