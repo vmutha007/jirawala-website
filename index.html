@@ -392,7 +392,7 @@
                                 <i data-lucide="building" class="mt-1 flex-shrink-0" style="color: var(--secondary-color);"></i>
                                 <div>
                                     <strong class="block mb-2">Who We Are</strong>
-                                    <p class="text-gray-600">We are a leading supplier of high-quality architectural hardware, plywood, and decorative laminates.</p>
+                                    <p class="text-gray-600">We are a leading supplier of high-quality branded furniture hardware from Ozone, plywood, and decorative laminates.</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-4">
@@ -1083,6 +1083,28 @@ const loadDataFromLocalStorage = async () => {
         schemes = appData.schemes || initialData.schemes;
         catalogues = appData.catalogues || initialData.catalogues;
         podcasts = appData.podcasts || initialData.podcasts;
+        // Normalize podcast video identifiers so renderers always get a clean YouTube ID
+        try {
+            podcasts = (podcasts || []).map(p => {
+                const copy = { ...p };
+                // Try common fields that may contain the url or id
+                const candidates = [copy.videoId, copy.videoUrl, copy.url, copy.link, copy.video];
+                let found = null;
+                for (const c of candidates) {
+                    if (!c) continue;
+                    const id = getYouTubeId(c);
+                    if (id) { found = id; break; }
+                }
+                if (found) {
+                    copy.videoId = found;
+                } else {
+                    // keep original string (if present) as originalUrl for fallback UI
+                    copy.originalUrl = copy.videoUrl || copy.url || copy.link || copy.video || copy.videoId || null;
+                    copy.videoId = copy.videoId && /^[a-zA-Z0-9_-]{11}$/.test(copy.videoId) ? copy.videoId : null;
+                }
+                return copy;
+            });
+        } catch (e) { /* ignore normalization errors */ }
         contactDetails = appData.contactDetails || initialData.contactDetails;
         quarterStartDate = appData.quarterStartDate || initialData.quarterStartDate;
         quarterEndDate = appData.quarterEndDate || initialData.quarterEndDate;
@@ -1143,6 +1165,35 @@ const compressImageFile = (file, targetBytes = 1000000) => {
         try { showLoader(); } catch(e){}
         reader.readAsDataURL(file);
     });
+};
+
+// Normalize YouTube input: accept full URLs or IDs and return the videoId or null
+const getYouTubeId = (input) => {
+    if (!input) return null;
+    input = input.trim();
+    // If already a plausible id (11 chars, letters/numbers/-/_)
+    if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+    try {
+        const url = new URL(input.startsWith('http') ? input : `https://${input}`);
+        // youtube.com/watch?v=VIDEOID
+        if (url.hostname.includes('youtube.com')) {
+            const v = url.searchParams.get('v');
+            if (v) return v;
+            // /embed/VIDEOID
+            const embedMatch = url.pathname.match(/\/embed\/([-_a-zA-Z0-9]{11})/);
+            if (embedMatch) return embedMatch[1];
+        }
+        // youtu.be/VIDEOID
+        if (url.hostname === 'youtu.be') {
+            const m = url.pathname.match(/\/([-_a-zA-Z0-9]{11})/);
+            if (m) return m[1];
+        }
+    } catch (e) {
+        // not a full URL, try to extract id from common patterns
+        const m = input.match(/(?:v=|be\/|embed\/)([-_a-zA-Z0-9]{11})/);
+        if (m) return m[1];
+    }
+    return null;
 };
 
             // --- Backup / Restore helpers ---
@@ -1812,11 +1863,33 @@ const getLastQuarterPoints = (partner) => {
             const renderPodcasts = () => {
                 const container = document.getElementById('podcast-list');
                 if(!container) return;
-                container.innerHTML = podcasts.map(pod => `
-                    <div class="card overflow-hidden">
-                        <div class="aspect-w-16 aspect-h-9"><iframe src="https://www.youtube.com/embed/${pod.videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full"></iframe></div>
-                        <div class="p-4"><h3 class="font-bold">${pod.title}</h3><p class="text-sm text-gray-600">With ${pod.partnerName}</p></div>
-                    </div>`).join('');
+                container.innerHTML = (podcasts || []).map(pod => {
+                    const title = pod.title || 'Untitled';
+                    const partner = pod.partnerName || '';
+                    if (pod.videoId) {
+                        const thumb = `https://img.youtube.com/vi/${pod.videoId}/hqdefault.jpg`;
+                        return `
+                        <div class="card overflow-hidden">
+                            <a href="https://www.youtube.com/watch?v=${pod.videoId}" target="_blank" class="block relative">
+                                <img src="${thumb}" alt="${title}" class="w-full h-auto object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-14 h-14 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white text-2xl">▶</div>
+                                </div>
+                            </a>
+                            <div class="p-4"><h3 class="font-bold">${title}</h3><p class="text-sm text-gray-600">With ${partner}</p></div>
+                        </div>`;
+                    } else if (pod.originalUrl) {
+                        const safeUrl = pod.originalUrl;
+                        return `
+                        <div class="card overflow-hidden">
+                            <div class="p-4"><h3 class="font-bold">${title}</h3><p class="text-sm text-gray-600">With ${partner}</p>
+                            <p class="text-xs text-gray-500 mt-2">Video: <a href="${safeUrl}" target="_blank" class="text-blue-600 hover:underline truncate">${safeUrl}</a></p></div>
+                        </div>`;
+                    } else {
+                        return `
+                        <div class="card p-4"><h3 class="font-bold">${title}</h3><p class="text-sm text-gray-600">With ${partner}</p><p class="text-xs text-gray-500 mt-2">No playable video available.</p></div>`;
+                    }
+                }).join('');
             }
             
             // --- ADMIN RENDER FUNCTIONS ---
@@ -2750,7 +2823,7 @@ const getLastQuarterPoints = (partner) => {
                             </div>
                         </div>
                         <div class="lg:col-span-3 space-y-6">
-                             ${partnerPodcast ? `<div><h3 class="font-bold text-lg mb-2">Partner Podcast</h3><div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md"><iframe src="https://www.youtube.com/embed/${partnerPodcast.videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full"></iframe></div></div>` : ''}
+                             ${partnerPodcast ? (partnerPodcast.videoId ? `<div><h3 class="font-bold text-lg mb-2">Partner Podcast</h3><div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md"><iframe src="https://www.youtube.com/embed/${partnerPodcast.videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full"></iframe></div></div>` : (partnerPodcast.originalUrl ? `<div><h3 class="font-bold text-lg mb-2">Partner Podcast</h3><div class="p-4 bg-gray-50 rounded"><p class="text-sm text-gray-700">Video URL: <a href="${partnerPodcast.originalUrl}" target="_blank" class="text-blue-600 hover:underline truncate">${partnerPodcast.originalUrl}</a></p></div></div>` : '')) : ''}
                             ${p.portfolio.length > 0 ? `<div><h3 class="font-bold text-lg mb-2">Portfolio</h3><div class="space-y-3 max-h-60 overflow-y-auto pr-3">${p.portfolio.map(item => `<a href="${item.url}" target="_blank" class="block p-3 bg-gray-50 hover:bg-gray-100 rounded-md transition"><span class="font-semibold text-blue-700">${item.projectName}</span></a>`).join('')}</div></div>` : ''}
                         </div>
                     </div>
@@ -3220,7 +3293,13 @@ document.getElementById('logout-button').addEventListener('click', () => {
                     }
                     renderAdminPartners();
                 } else if(entity === 'podcast') {
-                    const podcastData = { title: document.getElementById('modal-podcast-title').value, partnerName: document.getElementById('modal-podcast-partnerName').value, videoId: document.getElementById('modal-podcast-videoId').value };
+                    const rawVideo = (document.getElementById('modal-podcast-videoId').value || '').trim();
+                    const normalized = getYouTubeId(rawVideo);
+                    if (!normalized) {
+                        showToast('Invalid YouTube ID or URL. Please provide a valid YouTube link or 11-character ID.', true);
+                        return; // keep modal open for correction
+                    }
+                    const podcastData = { title: document.getElementById('modal-podcast-title').value, partnerName: document.getElementById('modal-podcast-partnerName').value, videoId: normalized, originalUrl: rawVideo && rawVideo !== normalized ? rawVideo : undefined };
                     if(id) podcasts[podcasts.findIndex(p => p.id === id)] = { ...podcasts.find(p => p.id === id), ...podcastData };
                     else podcasts.push({ ...podcastData, id: Date.now() });
                     renderAdminPodcasts();
