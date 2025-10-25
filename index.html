@@ -713,6 +713,15 @@
                                     </div>
                                     <button type="submit" class="btn-secondary px-5 py-2 rounded-lg">Save Dates</button>
                                 </form>
+                                <div class="p-6 border rounded-lg mt-4">
+                                    <h4 class="font-semibold text-lg">Backup & Restore</h4>
+                                    <p class="text-sm text-gray-600 mb-3">Download a local JSON backup of the site data, or upload a previously exported backup to restore.</p>
+                                    <div class="flex items-center gap-3">
+                                        <button id="download-backup-btn" class="px-4 py-2 rounded-lg border bg-white hover:bg-gray-50">Download Backup</button>
+                                        <button id="upload-backup-btn" class="px-4 py-2 rounded-lg border bg-white hover:bg-gray-50">Upload Backup</button>
+                                        <input type="file" id="backup-file-input" accept="application/json" class="hidden" />
+                                    </div>
+                                </div>
                                 <div class="p-6 border-2 border-red-200 rounded-lg">
                                     <h4 class="text-lg font-bold text-red-700">Danger Zone</h4>
                                     <div class="mt-4 flex justify-between items-center">
@@ -810,20 +819,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             // --- DATA & CONFIG ---
             const initialData = {
-                partners: [
-                    { id: 1, name: 'Aarav Sharma', firm: 'Innovate Designs', city: 'Aurangabad', type: 'Designer', points: 15600, history: [{quarter: 'Q3 2025', points: 14500}], verified: true, elite: true, isNew: false, featured: true, website: 'https://example.com', phone: '9876543210', email: 'aarav@innovate.com', photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1887&auto=format&fit=crop', instagram: 'aarav.designs', experience: '15+ years of experience in residential and commercial interior design, specializing in sustainable materials.', portfolio: [{ projectName: 'Modern Villa, Pune', url: '#' },{ projectName: 'Corporate Office Interior', url: '#' },{ projectName: 'Luxury Apartment, Mumbai', url: '#' },{ projectName: 'Retail Store Concept', url: '#' }], contributions: [{amount: 50000, date: '2025-08-15'}, {amount: 60000, date: '2025-09-20'}], referrals: 6 },
-                    { id: 2, name: 'Priya Patel', firm: 'BuildRight Dealers', city: 'Pune', type: 'Dealer', points: 18200, history: [{quarter: 'Q3 2025', points: 19000}], verified: true, elite: true, isNew: false, featured: false, website: 'https://example.com', phone: '9876543211', email: 'priya@buildright.com', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop', instagram: 'priya.builds', experience: 'Founder of BuildRight Dealers, with over a decade of experience in sourcing and distributing high-quality construction materials.', portfolio: [{ projectName: 'Greenwood Residential Project', url: '#' },{ projectName: 'Skyline Commercial Complex', url: '#' }], contributions: [], referrals: 2 },
-                    { id: 3, name: 'Rohan Verma', firm: 'Verma Carpentry', city: 'Nashik', type: 'Carpenter', points: 12100, history: [{quarter: 'Q3 2025', points: 9800}], verified: true, elite: false, isNew: true, featured: false, website: '#', phone: '9876543212', email: 'rohan@verma.com', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop', instagram: '', experience: 'A master craftsman with 20 years of experience in bespoke furniture and detailed woodwork.', portfolio: [{ projectName: 'Custom Kitchen Cabinetry', url: '#' }], contributions: [{amount: 10000, date: '2025-10-01'}], referrals: 0 },
-                    { id: 4, name: 'Sunita Gupta', firm: 'Creative Spaces', city: 'Pune', type: 'Designer', points: 9800, history: [{quarter: 'Q3 2025', points: 8500}], verified: true, elite: false, isNew: false, featured: false, website: '#', phone: '9876543213', email: 'sunita@creative.com', photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop', instagram: 'sunita.spaces', experience: 'Specializes in minimalist and functional design for modern urban living.', portfolio: [{ projectName: 'Boutique Hotel Lobby', url: '#' },{ projectName: 'Minimalist Home Design', url: '#' },{ projectName: 'Cafe Ambiance Project', url: '#' }], contributions: [], referrals: 0 },
-                    { id: 5, name: 'Anil Kumar', firm: 'Kumar & Sons Hardware', city: 'Aurangabad', type: 'Dealer', points: 26500, history: [{quarter: 'Q3 2025', points: 21000}], verified: true, elite: true, isNew: false, featured: true, website: '#', phone: '9876543214', email: 'anil@kumar.com', photo: '', experience: 'Third-generation hardware specialist, known for an extensive inventory and expert advice.', portfolio: [], contributions: [{amount: 265000, date: '2025-10-05'}], referrals: 1 },
-                    { id: 6, name: 'Suresh Pawar', firm: 'Fine Finish Carpentry', city: 'Mumbai', type: 'Carpenter', points: 8500, history: [], verified: false, elite: false, isNew: true, featured: false, website: '#', phone: '9876543215', email: 'suresh@finefinish.com', photo: '', instagram: 'suresh.carpentry', experience: 'New partner specializing in high-end finishing and custom installations.', portfolio: [{ projectName: 'Hardwood Flooring Installation', url: '#' }], contributions: [], referrals: 0 },
-                ],
-                schemes: [ { title: "Q4 Supercharged Scheme!", description: "Earn double points on all contributions over ₹50,000 this quarter. Ends Dec 31st.", active: true } ],
-                catalogues: [ {id: 1, title: 'Laminate Collection 2024', file: '#'}, {id: 2, title: 'Plywood Grade Guide', file: '#'} ],
-                podcasts: [ { id: 1, title: 'The Future of Urban Design', partnerName: 'Aarav Sharma', videoId: 'dQw4w9WgXcQ' }, {id: 2, title: 'Material Sourcing Secrets', partnerName: 'Priya Patel', videoId: 'dQw4w9WgXcQ'} ],
-                contactDetails: { supply: "Architectural Hardware, Premium Plywood, Decorative Laminates, Adhesives, and Tools.", phone: "+91 12345 67890", address: "123 Axis Tower, M.G. Road, Pune, Maharashtra, 411001", email: "contact@jirawalaaxis.com" },
-                quarterStartDate: '2025-10-01',
-                quarterEndDate: '2025-12-31',
+                partners: [],
+                schemes: [],
+                catalogues: [],
+                podcasts: [],
+                contactDetails: { supply: '', phone: '', address: '', email: '' },
+                quarterStartDate: '',
+                quarterEndDate: ''
             };
 
             let partners = []; let schemes = []; let catalogues = []; let podcasts = []; let contactDetails = {};
@@ -900,6 +902,62 @@ const loadDataFromLocalStorage = async () => {
         quarterEndDate = initialData.quarterEndDate;
     }
 };
+
+            // --- Backup / Restore helpers ---
+            const downloadBackup = () => {
+                const appData = { partners, schemes, catalogues, podcasts, contactDetails, quarterStartDate, quarterEndDate };
+                const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `jirawala-backup-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+                showToast('Backup downloaded.');
+            };
+
+            const restoreBackupFromFile = async (file) => {
+                try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+                    partners = data.partners || [];
+                    schemes = data.schemes || [];
+                    catalogues = data.catalogues || [];
+                    podcasts = data.podcasts || [];
+                    contactDetails = data.contactDetails || { supply: '', phone: '', address: '', email: '' };
+                    quarterStartDate = data.quarterStartDate || '';
+                    quarterEndDate = data.quarterEndDate || '';
+                    saveDataToLocalStorage();
+                    renderAll();
+                    showToast('Backup restored successfully.');
+                } catch (err) {
+                    console.error('Failed to restore backup', err);
+                    showToast('Failed to restore backup: invalid file.', true);
+                }
+            };
+
+            // Wire backup UI once DOM elements exist
+            document.addEventListener('click', (e) => {
+                // Delegate safe clicks for the admin only buttons once loaded
+                if (e.target && e.target.id === 'download-backup-btn') {
+                    downloadBackup();
+                }
+                if (e.target && e.target.id === 'upload-backup-btn') {
+                    const input = document.getElementById('backup-file-input');
+                    if (input) input.click();
+                }
+            });
+
+            const backupFileInput = document.getElementById('backup-file-input');
+            backupFileInput?.addEventListener('change', (ev) => {
+                const file = ev.target.files && ev.target.files[0];
+                if (!file) return;
+                restoreBackupFromFile(file);
+                // clear value to allow re-uploading same file
+                ev.target.value = '';
+            });
 
 const hasContributionsForMonths = (partner, monthCount) => {
     if (!partner.contributions || partner.contributions.length === 0) return false;
