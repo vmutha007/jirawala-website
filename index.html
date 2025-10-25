@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jirawala Axis</title>
+    <meta name="description" content="Modular Kitchens, Wardrobes, Furniture Fittings, Hardware, Plywood, Laminates - Jirawala Axis supplies premium hardware and materials to architects, designers, and craftsmen.">
+    <meta name="keywords" content="Modular Kitchens, Wardrobes, Furniture Fittings, Hardware, Plywood, Laminates">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -160,9 +162,124 @@
         #hero-ticker-text {
             padding: 8px 0;
         }
+        /* Responsive improvements: make portfolio / partner cards behave like ID cards and fit across devices */
+        /* Partner cards grid: automatically size columns */
+        #partner-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+        /* Make image area small and circular like an ID card */
+        #partner-cards-container .card > div:first-child {
+            width: 80px;
+            height: 80px;
+            margin: 0.75rem auto 0  auto;
+            border-radius: 9999px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f1f5f9;
+        }
+        /* New helper class for avatar containers used by renderPartners() */
+    .partner-avatar { width: 80px; height: 80px; border-radius: 9999px; overflow: hidden; display:block; margin: 0.5rem auto; border: 3px solid #fff; box-shadow: 0 0 0 4px rgba(30,58,138,0.06), 0 2px 6px rgba(0,0,0,0.08); }
+    @media (min-width: 768px) { .partner-avatar { width: 72px; height: 72px; margin: 0; } }
+    .partner-avatar img { width: 100%; height: 100%; object-fit: cover; display:block; }
+    /* colored ring variants for ranking/status */
+    .partner-avatar.ring { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(255,69,0,0.12); }
+    .partner-avatar.ring-gold { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(250, 204, 21, 0.20); }
+    .partner-avatar.ring-silver { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(156,163,175,0.20); }
+    .partner-avatar.ring-bronze { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(195,127,63,0.18); }
+    .partner-avatar.ring-elite { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(139,92,246,0.18); }
+    .partner-avatar.ring-new { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(34,197,94,0.12); }
+    .partner-avatar:hover { transform: translateY(-3px); transition: transform 120ms ease; }
+    /* also allow these ring classes on larger image containers (detail view) */
+    .ring-gold { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(250, 204, 21, 0.18); }
+    .ring-silver { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(156,163,175,0.14); }
+    .ring-bronze { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(195,127,63,0.12); }
+    .ring-elite { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(139,92,246,0.14); }
+    .ring-new { box-shadow: 0 0 0 4px #fff, 0 0 0 8px rgba(34,197,94,0.12); }
+        /* Ensure images fill their container and crop nicely */
+        #partner-cards-container .card img,
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        /* Make card text content compact on small screens */
+        #partner-cards-container .card .p-3,
+        #partner-cards-container .card .p-4 {
+            padding: 0.5rem;
+        }
+
+        /* Catalogues responsive grid */
+        #catalogue-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+        #catalogue-list .card { padding: 0.75rem; }
+
+    /* Global loader & skeleton styles */
+    #global-loader { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(255,255,255,0.9), rgba(250,250,250,0.85)); z-index:9999; }
+    .loader-inner { display:flex; flex-direction:column; align-items:center; gap:14px; }
+    .loader-logo { width:84px; height:84px; border-radius:20px; background:linear-gradient(135deg,var(--primary-color),#7c3aed); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:20px; box-shadow:0 10px 30px rgba(0,0,0,0.12); }
+    .loader-dots { display:flex; gap:6px; }
+    .loader-dots span { width:12px; height:12px; background:rgba(0,0,0,0.12); border-radius:50%; display:inline-block; animation:loader-bob 1s infinite ease-in-out; }
+    .loader-dots span:nth-child(2){ animation-delay:0.12s; }
+    .loader-dots span:nth-child(3){ animation-delay:0.24s; }
+    @keyframes loader-bob { 0%,100%{ transform:translateY(0); opacity:0.6 } 50%{ transform:translateY(-8px); opacity:1 } }
+
+    /* Simple skeleton for card content (used by JS to apply while loading sections) */
+    .skeleton { background: linear-gradient(90deg, #f3f4f6 25%, #e9eefc 37%, #f3f4f6 63%); background-size:400% 100%; animation: shimmer 1.4s ease infinite; border-radius:6px; }
+    @keyframes shimmer { 0%{ background-position:100% 0 } 100%{ background-position:-100% 0 } }
+
+        /* Mobile admin improvements: make nav a compact horizontal strip and panels scrollable */
+        @media (max-width: 768px) {
+            /* Make the admin navigation horizontal and scrollable on small screens */
+            .admin-nav { flex-direction: row !important; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 0.5rem; padding: 0.5rem; }
+            .admin-nav-btn { width: auto !important; flex: 0 0 auto; min-width: 88px; padding: 8px 10px; }
+
+            /* Ensure the main admin card allows its panels to scroll without the fixed nav blocking */
+            .flex-grow.card { display: flex; flex-direction: column; max-height: calc(100vh - 110px); }
+            .flex-grow.card > .admin-panel { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1rem; }
+
+            /* Prevent long dropdowns from being clipped by forcing visible positioning when needed */
+            .group:hover .group-hover\:block { position: relative; }
+        }
+
+        /* Admin panel responsiveness */
+        #admin-dashboard { overflow-x: auto; }
+        .admin-panel { padding: 0.5rem; }
+        .admin-nav-btn { flex: 0 0 auto; white-space: nowrap; }
+        .admin-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+        /* Admin partners grid becomes responsive cards */
+        #admin-partners-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+        /* Make tables horizontally scrollable on small screens */
+        table { width: 100%; border-collapse: collapse; }
+        .table-responsive { overflow-x: auto; }
+
+        /* Tweak modal widths on small screens */
+        @media (max-width: 640px) {
+            .max-w-2xl { max-width: 95% !important; }
+            .max-w-4xl { max-width: 95% !important; }
+            #partner-cards-container { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            #catalogue-list { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .card { padding: 0.5rem; }
+            .admin-nav-btn { padding: 6px 8px; font-size: 13px; }
+        }
     </style>
 </head>
+
 <body class="text-gray-800">
+    <!-- Global Loader (visible until init completes) -->
+    <div id="global-loader">
+        <div class="loader-inner">
+            <div class="loader-logo">JA</div>
+            <div class="loader-dots"><span></span><span></span><span></span></div>
+        </div>
+    </div>
 
     <!-- Header & Navigation -->
     <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
@@ -211,6 +328,16 @@
                 <div class="relative z-20 flex flex-col items-center justify-center h-full text-center text-white px-4">
                     <h1 class="text-4xl md:text-6xl font-extrabold leading-tight hero-text">Jirawala Axis</h1>
                     <p class="mt-4 text-lg md:text-xl max-w-2xl hero-text">Supplying premium hardware and materials to bring architectural and design dreams to life.</p>
+                </div>
+                <!-- Mobile quick-nav: compact single-line buttons to jump to important sections -->
+                <div id="hero-mobile-quicknav" class="absolute bottom-16 left-0 w-full z-30 flex justify-center md:hidden px-4">
+                    <div class="bg-white/90 rounded-full px-2 py-1 shadow-md flex gap-2 overflow-x-auto max-w-lg">
+                        <a href="#portfolio" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Portfolio</a>
+                        <a href="#catalogues" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Catalogues</a>
+                        <a href="#podcasts" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Podcasts</a>
+                        <a href="#leaderboard" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Leaderboard</a>
+                        <a href="#contact" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Contact</a>
+                    </div>
                 </div>
                 <div id="hero-ticker-container" class="absolute bottom-0 left-0 w-full bg-black/50 backdrop-blur-sm overflow-hidden py-3 text-white text-sm font-semibold whitespace-nowrap z-20">
                     <div id="hero-ticker-text" class="animate-marquee"></div>
@@ -498,6 +625,9 @@
                             <button data-panel="settings" class="admin-nav-btn w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
                                 <i data-lucide="settings"></i> <span class="flex-grow text-left">Settings</span>
                             </button>
+                            <button data-panel="achievements" class="admin-nav-btn w-full flex items-center gap-2 p-3 rounded-lg font-semibold transition text-sm">
+                                <i data-lucide="award"></i> <span class="flex-grow text-left">Achievements</span>
+                            </button>
                         </div>
 
                         <!-- Admin Panels with Search -->
@@ -734,6 +864,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div id="admin-panel-achievements" class="admin-panel">
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="font-bold">Achievements</h3>
+                                    <div>
+                                        <button id="add-achievement-btn" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Add Achievement</button>
+                                        <button id="export-achievements" class="px-3 py-1 rounded border text-sm ml-2">Export</button>
+                                    </div>
+                                </div>
+                                <div id="achievements-table-container" class="overflow-auto"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -851,9 +993,14 @@
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
 
+            // Loader controls
+            const globalLoader = document.getElementById('global-loader');
+            const showLoader = (msg) => { if (globalLoader) globalLoader.style.display = 'flex'; };
+            const hideLoader = () => { if (globalLoader) globalLoader.style.display = 'none'; };
+
           // --- HELPERS & LOGIC ---
 const saveDataToLocalStorage = async () => {
-    const appData = { partners, schemes, catalogues, podcasts, contactDetails, quarterStartDate, quarterEndDate };
+    const appData = { partners, schemes, catalogues, podcasts, contactDetails, quarterStartDate, quarterEndDate, achievements };
     localStorage.setItem('jirawalaAxisData', JSON.stringify(appData));
     
     // Also save to cloud
@@ -882,6 +1029,7 @@ const loadDataFromLocalStorage = async () => {
                 contactDetails = cloudData.contactDetails || initialData.contactDetails;
                 quarterStartDate = cloudData.quarterStartDate || initialData.quarterStartDate;
                 quarterEndDate = cloudData.quarterEndDate || initialData.quarterEndDate;
+                achievements = cloudData.achievements || defaultAchievements.slice();
                 return;
             }
         }
@@ -900,6 +1048,7 @@ const loadDataFromLocalStorage = async () => {
         contactDetails = appData.contactDetails || initialData.contactDetails;
         quarterStartDate = appData.quarterStartDate || initialData.quarterStartDate;
         quarterEndDate = appData.quarterEndDate || initialData.quarterEndDate;
+        achievements = appData.achievements || defaultAchievements.slice();
     } else {
         // Correctly assign to local variables, not the window object
         partners = initialData.partners;
@@ -909,7 +1058,53 @@ const loadDataFromLocalStorage = async () => {
         contactDetails = initialData.contactDetails;
         quarterStartDate = initialData.quarterStartDate;
         quarterEndDate = initialData.quarterEndDate;
+        achievements = defaultAchievements.slice();
     }
+};
+
+// Global image compression helper (moved out of modal scope so it can be reused)
+const compressImageFile = (file, targetBytes = 1000000) => {
+    return new Promise((resolve, reject) => {
+        if (!file.type.startsWith('image/')) {
+            reject(new Error('Not an image'));
+            return;
+        }
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = () => { img.src = reader.result; };
+        reader.onerror = (err) => { try { hideLoader(); } catch(e){}; reject(err); };
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const MAX_WIDTH = img.width;
+            const MAX_HEIGHT = img.height;
+            canvas.width = MAX_WIDTH;
+            canvas.height = MAX_HEIGHT;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            let quality = 0.92;
+            const step = 0.08;
+            const tryCompress = () => {
+                const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                const size = Math.round((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
+                if (size <= targetBytes || quality <= 0.5) {
+                    try { hideLoader(); } catch(e){}
+                    resolve(dataUrl);
+                } else {
+                    quality = Math.max(0.5, quality - step);
+                    if (quality === 0.5 && size > targetBytes) {
+                        canvas.width = Math.round(canvas.width * 0.9);
+                        canvas.height = Math.round(canvas.height * 0.9);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    }
+                    setTimeout(tryCompress, 0);
+                }
+            };
+            tryCompress();
+        };
+        try { showLoader(); } catch(e){}
+        reader.readAsDataURL(file);
+    });
 };
 
             // --- Backup / Restore helpers ---
@@ -1045,7 +1240,8 @@ const loadDataFromLocalStorage = async () => {
                 }
                 // If data URL or same-origin, simply create an anchor and click
                 const a = document.createElement('a');
-                a.href = c.file;
+                // If it's a data URL, use directly; otherwise encode the URL to safely handle spaces/special chars
+                a.href = isDataUrl(c.file) ? c.file : encodeURI(c.file);
                 // Guess filename from title and mime
                 let ext = '';
                 if (isDataUrl(c.file)) {
@@ -1068,13 +1264,83 @@ const loadDataFromLocalStorage = async () => {
                  modalForm.dataset.entity = 'catalogue';
                  modalForm.dataset.id = catalogueId || '';
                  modalTitle.textContent = catalogueId ? "Edit Catalogue" : "Add New Catalogue";
-                 modalContent.innerHTML = `
-                    <div><label class="block mb-1 font-medium">Catalogue Title</label><input type="text" id="modal-catalogue-title" class="w-full p-2 border rounded-lg" required value="${c.title || ''}"></div>
-                    <div><label class="block mb-1 font-medium">File URL</label><input type="url" id="modal-catalogue-file" class="w-full p-2 border rounded-lg" required value="${c.file || ''}"></div>
-                    <div class="grid grid-cols-1 gap-2 md:grid-cols-2"><div><label class="block mb-1 font-medium">Or Upload File</label><input type="file" id="modal-catalogue-file-input" class="w-full p-2 border rounded-lg" accept="application/pdf,image/*" /></div><div id="modal-catalogue-preview-container" class="flex items-center justify-center"></div></div>
-                 `;
+                      modalContent.innerHTML = `
+                          <div><label class="block mb-1 font-medium">Catalogue Title</label><input type="text" id="modal-catalogue-title" class="w-full p-2 border rounded-lg" required value="${c.title || ''}"></div>
+                          <div><label class="block mb-1 font-medium">File URL</label><input type="url" id="modal-catalogue-file" class="w-full p-2 border rounded-lg" required value="${c.file || ''}"></div>
+                          <div class="grid grid-cols-1 gap-2 md:grid-cols-2"><div><label class="block mb-1 font-medium">Or Upload File</label><input type="file" id="modal-catalogue-file-input" class="w-full p-2 border rounded-lg" accept="application/pdf,image/*" /></div><div id="modal-catalogue-preview-container" class="flex items-center justify-center"></div></div>
+                          <div class="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+                                <div><label class="block mb-1 font-medium">Cover Image URL</label><input type="url" id="modal-catalogue-cover" class="w-full p-2 border rounded-lg" value="${c.cover || ''}"></div>
+                                <div><label class="block mb-1 font-medium">Or Upload Cover</label><input type="file" id="modal-catalogue-cover-input" class="w-full p-2 border rounded-lg" accept="image/*" /></div>
+                          </div>
+                          <div id="modal-catalogue-cover-preview" class="mt-2"></div>
+                      `;
                  modalFooter.innerHTML = `<button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Changes</button>`;
                  openModal();
+                 // Auto-save uploaded catalogue file into existing storage (local + cloud via saveDataToLocalStorage)
+                 const fileInputAuto = document.getElementById('modal-catalogue-file-input');
+                 const fileUrlInputAuto = document.getElementById('modal-catalogue-file');
+                 const readAsDataURL = (file) => new Promise((res, rej) => {
+                     const r = new FileReader();
+                     r.onload = () => res(r.result);
+                     r.onerror = rej;
+                     r.readAsDataURL(file);
+                 });
+
+                 fileInputAuto?.addEventListener('change', async (ev) => {
+                     const file = ev.target.files && ev.target.files[0];
+                     if (!file) return;
+                     const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB limit
+                     if (file.size > MAX_RAW_BYTES) {
+                         showToast('File too large. Maximum allowed size is 2 MB.', true);
+                         return;
+                     }
+                     try {
+                         let dataUrl;
+                         // If a compression helper exists globally, prefer it for images
+                         if (file.type.startsWith('image/') && typeof window.compressImageFile === 'function') {
+                             showToast('Processing image...');
+                             dataUrl = await window.compressImageFile(file, 1000000);
+                         } else {
+                             dataUrl = await readAsDataURL(file);
+                         }
+
+                         if (typeof dataUrl !== 'string') {
+                             showToast('Failed to read file.', true);
+                             return;
+                         }
+
+                         // Set the modal file input so the form reflects the uploaded data
+                         if (fileUrlInputAuto) fileUrlInputAuto.value = dataUrl;
+
+                         // Auto-save: if editing an existing catalogue, update it; otherwise create a new one
+                         const currentId = modalForm.dataset.id ? parseInt(modalForm.dataset.id) : null;
+                         const titleEl = document.getElementById('modal-catalogue-title');
+                         const titleVal = titleEl ? titleEl.value.trim() : 'Untitled';
+                         if (!currentId) {
+                             const newCat = { id: Date.now(), title: titleVal || 'Untitled', file: dataUrl, cover: file.type.startsWith('image/') ? dataUrl : '' };
+                             catalogues.push(newCat);
+                             // Mark modal as editing this new catalogue so subsequent saves edit it
+                             modalForm.dataset.id = newCat.id;
+                             showToast('Catalogue uploaded and saved.');
+                         } else {
+                             const idx = catalogues.findIndex(x => x.id === currentId);
+                             if (idx > -1) {
+                                 catalogues[idx].file = dataUrl;
+                                 if (!catalogues[idx].title) catalogues[idx].title = titleVal || catalogues[idx].title || 'Untitled';
+                             } else {
+                                 catalogues.push({ id: currentId, title: titleVal || 'Untitled', file: dataUrl, cover: file.type.startsWith('image/') ? dataUrl : '' });
+                             }
+                             showToast('Catalogue updated and saved.');
+                         }
+
+                         // Refresh UI and persist (saveDataToLocalStorage already also PUTs to configured cloud endpoint)
+                         try { renderAdminCatalogues(); renderCatalogues(); } catch (e) {}
+                         await saveDataToLocalStorage();
+                     } catch (err) {
+                         console.error(err);
+                         showToast('Failed to process file. Try again.', true);
+                     }
+                 });
 
                  const fileInput = document.getElementById('modal-catalogue-file-input');
                  const fileUrlInput = document.getElementById('modal-catalogue-file');
@@ -1135,6 +1401,39 @@ const loadDataFromLocalStorage = async () => {
                      updatePreview();
                  });
 
+                 // Wire cover upload input (explicit cover field)
+                 const coverFileInput = document.getElementById('modal-catalogue-cover-input');
+                 const coverUrlInput = document.getElementById('modal-catalogue-cover');
+                 const coverPreview = document.getElementById('modal-catalogue-cover-preview');
+                 coverFileInput?.addEventListener('change', async (ev) => {
+                     const file = ev.target.files && ev.target.files[0];
+                     if (!file) return;
+                     const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB
+                     if (file.size > MAX_RAW_BYTES) {
+                         showToast('File too large. Maximum allowed size is 2 MB.', true);
+                         return;
+                     }
+                     try {
+                         if (file.type.startsWith('image/') && typeof compressImageFile === 'function') {
+                             showToast('Compressing cover image...');
+                             const compressed = await compressImageFile(file, 1000000);
+                             coverUrlInput.value = compressed;
+                         } else if (file.type.startsWith('image/')) {
+                             const reader = new FileReader();
+                             reader.onload = () => {
+                                 const result = reader.result;
+                                 if (typeof result === 'string') coverUrlInput.value = result;
+                             };
+                             reader.readAsDataURL(file);
+                         }
+                         coverPreview.innerHTML = `<img src="${coverUrlInput.value}" class="w-40 h-28 object-cover rounded"/>`;
+                         showToast('Cover uploaded.');
+                     } catch (err) {
+                         console.error(err);
+                         showToast('Failed to process catalogue cover. Please try a different file.', true);
+                     }
+                 });
+
                  // Update preview when URL input is changed programmatically or manually
                  fileUrlInput.addEventListener('input', updatePreview);
 
@@ -1148,15 +1447,48 @@ const hasContributionsForMonths = (partner, monthCount) => {
     return uniqueMonths.size >= monthCount;
 };
 
-const achievements = [
-    { id: 'first-blood', name: 'First Contribution', icon: '🎯', condition: (p) => p.contributions.length >= 1 },
-    { id: 'century', name: 'Century Club', icon: '💯', condition: (p) => p.points >= 10000 },
-    { id: 'consistency-king', name: 'Consistent Contributor', icon: '📅', condition: (p) => hasContributionsForMonths(p, 3) },
-    { id: 'mega-dealer', name: 'Mega Dealer', icon: '🏆', condition: (p) => p.type === 'Dealer' && p.points >= 25000 },
-    { id: 'referral-master', name: 'Referral Master', icon: '🤝', condition: (p) => p.referrals >= 5 },
+// Achievements are data-driven and persisted. Rules are evaluated by getPartnerAchievements().
+let achievements = [];
+
+// Default achievements (used at first-run if no saved achievements)
+const defaultAchievements = [
+    { id: 'first-blood', name: 'First Contribution', icon: '🎯', ruleType: 'contributions_months_gte', ruleValue: 1 },
+    { id: 'century', name: 'Century Club', icon: '💯', ruleType: 'points_gte', ruleValue: 10000 },
+    { id: 'consistency-king', name: 'Consistent Contributor', icon: '📅', ruleType: 'contributions_months_gte', ruleValue: 3 },
+    { id: 'mega-dealer', name: 'Mega Dealer', icon: '🏆', ruleType: 'type_and_points', ruleValue: 25000, ruleMeta: { type: 'Dealer' } },
+    { id: 'referral-master', name: 'Referral Master', icon: '🤝', ruleType: 'referrals_gte', ruleValue: 5 },
+    { id: 'platinum-seller', name: 'Platinum Seller', icon: '💎', ruleType: 'points_gte', ruleValue: 50000 },
+    { id: 'top-seller', name: 'Top Seller', icon: '🏅', ruleType: 'points_gte', ruleValue: 25000 },
+    { id: 'newcomer', name: 'Newcomer', icon: '🌱', ruleType: 'isNew', ruleValue: true },
 ];
 
-const getPartnerAchievements = (partner) => achievements.filter(ach => ach.condition(partner));
+// Evaluate rule-based achievements and include any manually assigned achievements (partner.assignedAchievements)
+const getPartnerAchievements = (partner) => {
+    const results = [];
+    achievements.forEach(a => {
+        if (a.disabled) return; // admin can disable
+        let ok = false;
+        switch(a.ruleType) {
+            case 'points_gte': ok = (partner.points || 0) >= (a.ruleValue || 0); break;
+            case 'referrals_gte': ok = (partner.referrals || 0) >= (a.ruleValue || 0); break;
+            case 'contributions_months_gte': ok = hasContributionsForMonths(partner, a.ruleValue || 0); break;
+            case 'type_and_points': ok = (partner.type === (a.ruleMeta && a.ruleMeta.type)) && ((partner.points||0) >= (a.ruleValue||0)); break;
+            case 'isNew': ok = !!partner.isNew; break;
+            case 'manual': ok = false; break; // manual-only handled below
+            default: ok = false;
+        }
+        if (ok) results.push(a);
+    });
+
+    // Add any manually assigned achievements referenced by partner.assignedAchievements (array of ids)
+    if (partner.assignedAchievements && Array.isArray(partner.assignedAchievements)) {
+        partner.assignedAchievements.forEach(id => {
+            const a = achievements.find(x => x.id === id);
+            if (a && !a.disabled && !results.find(r => r.id === a.id)) results.push(a);
+        });
+    }
+    return results;
+};
 
 const getCurrentQuarter = () => {
     const now = new Date();
@@ -1239,46 +1571,49 @@ const getLastQuarterPoints = (partner) => {
             const renderPartners = () => {
                 const container = document.getElementById('partner-cards-container');
                 if (!container) return;
-                
+
+                // Compute a global top-3 list (by points) so we can give them special rings
+                const sortedAll = [...partners].sort((a, b) => b.points - a.points);
+                const top3Ids = sortedAll.slice(0, 3).map(p => p.id);
+
                 const filteredPartners = partners
                     .filter(p => currentFilter === 'All' || p.type === currentFilter)
                     .filter(p => [p.name, p.firm, p.city].some(s => s.toLowerCase().includes(searchTerm)))
                     .sort((a, b) => b.points - a.points);
-                
-                container.innerHTML = filteredPartners.map(p => {
-                    const profileImage = p.photo 
-                        ? `<img src="${p.photo}" alt="${p.name}" class="h-full w-full object-cover">`
-                        : `<div class="h-full w-full flex items-center justify-center font-bold text-4xl text-white" style="background-color: var(--primary-color);">${p.name.charAt(0)}</div>`;
+
+                container.innerHTML = filteredPartners.map((p) => {
+                    // Determine ring class priority: top3 (gold/silver/bronze) > elite > new
+                    let ringClass = '';
+                    const topIndex = top3Ids.indexOf(p.id);
+                    if (topIndex === 0) ringClass = 'ring-gold';
+                    else if (topIndex === 1) ringClass = 'ring-silver';
+                    else if (topIndex === 2) ringClass = 'ring-bronze';
+                    else if (p.elite) ringClass = 'ring-elite';
+                    else if (p.isNew) ringClass = 'ring-new';
+
+                    const avatarHtml = p.photo
+                        ? `<div class="partner-avatar ${ringClass}"><img src="${p.photo}" alt="${p.name}" loading="lazy"/></div>`
+                        : `<div class="partner-avatar ${ringClass}" style="background-color:var(--primary-color);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:24px">${(p.name||'').charAt(0)}</div>`;
 
                     const portfolioLinks = p.portfolio && p.portfolio.length > 0 ? `
-                        <div class="flex-grow space-y-2 max-h-28 overflow-y-auto pr-2 mt-4">
-                            <h4 class="font-semibold text-sm text-gray-500 border-b pb-1 mb-2">Portfolio</h4>
-                            ${p.portfolio.map(item => `<a href="${item.url}" target="_blank" class="block text-sm text-blue-600 hover:underline truncate" title="${item.projectName}">${item.projectName}</a>`).join('')}
+                        <div class="mt-2 text-xs max-h-20 overflow-y-auto pr-2">
+                            ${p.portfolio.map(item => `<a href="${item.url}" target="_blank" class="block text-xs text-blue-600 hover:underline truncate" title="${item.projectName}">${item.projectName}</a>`).join('')}
                         </div>
-                    ` : `<div class="flex-grow mt-4"><div class="text-sm text-gray-400 text-center pt-8">No portfolio items.</div></div>`;
+                    ` : '';
 
                     return `
-                    <div class="card flex flex-col overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" data-id="${p.id}">
-                        <div class="h-28 sm:h-24 bg-gray-200 flex-shrink-0">
-                            ${profileImage}
-                        </div>
-                        <div class="p-3 sm:p-3 flex flex-col flex-grow">
-                            <div>
-                                <h3 class="font-bold text-base sm:text-sm truncate" title="${p.name}">${p.name}</h3>
-                                <p class="text-sm sm:text-xs text-gray-600 truncate" title="${p.firm} - ${p.city}">${p.firm} - ${p.city}</p>
-                            </div>
-                            
-                            <div class="mt-2 mb-2 flex items-center gap-1.5 flex-wrap">
-                                ${p.verified ? `<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs sm:text-[11px] font-medium">✓</span>` : ''}
-                                ${p.elite ? `<span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs sm:text-[11px] font-medium">★</span>` : ''}
-                                ${p.isNew ? `<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs sm:text-[11px] font-medium">New</span>` : ''}
-                                <span class="ml-auto text-sm sm:text-xs font-bold" style="color: var(--secondary-color);">${p.points.toLocaleString()} pts</span>
-                            </div>
-
-                            <div class="flex items-center justify-end gap-3 text-gray-400 mt-auto pt-2 border-t">
-                                ${p.website ? `<a href="${p.website}" target="_blank" class="hover:text-blue-600"><i data-lucide="globe" class="w-5 h-5 sm:w-4 sm:h-4"></i></a>` : ''}
-                                ${p.phone ? `<a href="tel:${p.phone}" class="hover:text-blue-600"><i data-lucide="phone" class="w-5 h-5 sm:w-4 sm:h-4"></i></a>` : ''}
-                                ${p.email ? `<a href="mailto:${p.email}" class="hover:text-blue-600"><i data-lucide="mail" class="w-5 h-5 sm:w-4 sm:h-4"></i></a>` : ''}
+                    <div class="card flex flex-col items-center text-center p-4 cursor-pointer hover:shadow-lg transition-shadow" data-id="${p.id}">
+                        ${avatarHtml}
+                        <div class="mt-3 w-full">
+                            <h3 class="font-bold text-sm truncate" title="${p.name}">${p.name}</h3>
+                            <p class="text-xs text-gray-600 truncate" title="${p.firm} · ${p.city}">${p.firm} · ${p.city}</p>
+                            ${portfolioLinks}
+                            <div class="mt-3 flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    ${p.verified ? `<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium">✓</span>` : ''}
+                                    ${p.elite ? `<span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs font-medium">★ Elite</span>` : ''}
+                                </div>
+                                <div class="text-sm font-bold" style="color: var(--secondary-color);">${(p.points||0).toLocaleString()} pts</div>
                             </div>
                         </div>
                     </div>
@@ -1375,13 +1710,55 @@ const getLastQuarterPoints = (partner) => {
             const renderCatalogues = () => {
                 const container = document.getElementById('catalogue-list');
                 if(!container) return;
-                container.innerHTML = catalogues.map(cat => `
-                    <a href="${cat.file}" download class="card p-6 text-center group">
-                        <i data-lucide="file-down" class="w-12 h-12 mx-auto text-gray-400 group-hover:text-blue-600 transition"></i>
-                        <h3 class="font-semibold mt-4 group-hover:text-blue-600 transition">${cat.title}</h3>
-                    </a>`).join('');
+                container.innerHTML = catalogues.map(c => {
+                    const file = c.file || '';
+                    const coverSrc = c.cover || file;
+                    const coverMime = isDataUrl(coverSrc) ? getDataUrlMime(coverSrc) : '';
+                    const coverIsImage = coverMime ? isImageMime(coverMime) : (/^https?:\/\/.+\.(png|jpe?g|webp|gif)$/i.test(coverSrc));
+                    const coverHtml = coverSrc ? (coverIsImage ? `<img src="${coverSrc}" alt="${c.title || 'Catalogue'}" class="w-full h-40 object-cover rounded-md">` : `<div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-md text-gray-600">📄 ${c.title || 'Catalogue'}</div>`) : `<div class="w-full h-40 flex items-center justify-center bg-gray-50 rounded-md text-gray-400">No file</div>`;
+                    return `
+                        <div class="card p-4 catalogue-card" data-id="${c.id}">
+                            ${coverHtml}
+                            <div class="mt-3 text-center">
+                                <div class="font-semibold text-md">${c.title || 'Untitled'}</div>
+                                <div class="text-xs text-gray-500 mt-1">Click to download</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
                 lucide.createIcons();
             }
+
+            // When a user clicks a catalogue card in the public listing, trigger a download.
+            document.getElementById('catalogue-list')?.addEventListener('click', (e) => {
+                // ignore clicks on buttons that have their own handlers (edit/download UI etc.)
+                if (e.target.closest('.download-catalogue-btn') || e.target.closest('.edit-catalogue-btn') || e.target.closest('a')) return;
+                const card = e.target.closest('.catalogue-card');
+                if (!card) return;
+                const id = parseInt(card.dataset.id);
+                const c = catalogues.find(x => x.id === id);
+                if (!c || !c.file) {
+                    showToast('No file available to download.', true);
+                    return;
+                }
+                // Use same download logic as admin list (handles data: URLs and filenames)
+                const a = document.createElement('a');
+                // If it's a data URL, use directly; otherwise encode the URL to safely handle spaces/special chars
+                a.href = isDataUrl(c.file) ? c.file : encodeURI(c.file);
+                let ext = '';
+                if (isDataUrl(c.file)) {
+                    const mime = getDataUrlMime(c.file);
+                    if (mime === 'application/pdf') ext = '.pdf';
+                    else if (/image\//.test(mime)) ext = '.jpg';
+                } else {
+                    const m = c.file.match(/\.([a-z0-9]+)(?:\?|$)/i);
+                    ext = m ? `.${m[1]}` : '';
+                }
+                a.download = ((c.title || 'catalogue').replace(/[^a-z0-9-_]/gi, '_')) + ext;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            });
             
             const renderPodcasts = () => {
                 const container = document.getElementById('podcast-list');
@@ -1829,6 +2206,84 @@ const getLastQuarterPoints = (partner) => {
                     </table>`;
             };
 
+            // --- Achievements Management (Admin) ---
+            const renderAdminAchievements = () => {
+                const container = document.getElementById('achievements-table-container');
+                if (!container) return;
+                if (!achievements || achievements.length === 0) {
+                    container.innerHTML = `<div class="p-6 text-sm text-gray-500">No achievements defined.</div>`;
+                    return;
+                }
+                container.innerHTML = `
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 text-xs text-gray-600"><tr><th class="p-2 text-left">ID</th><th class="p-2 text-left">Name</th><th class="p-2">Icon</th><th class="p-2">Rule</th><th class="p-2">Assigned</th><th class="p-2">Actions</th></tr></thead>
+                        <tbody>
+                        ${achievements.map(a => {
+                            const assignedCount = partners.filter(p => (p.assignedAchievements || []).includes(a.id)).length;
+                            const ruleDesc = a.ruleType ? (a.ruleType === 'points_gte' ? `Points ≥ ${a.ruleValue}` : a.ruleType === 'referrals_gte' ? `Referrals ≥ ${a.ruleValue}` : a.ruleType === 'contributions_months_gte' ? `Contributions in ${a.ruleValue} months` : a.ruleType === 'type_and_points' ? `${a.ruleMeta?.type || ''} & pts ≥ ${a.ruleValue}` : a.ruleType === 'isNew' ? 'Is New' : 'Manual') : 'Manual';
+                            return `<tr class="border-b"><td class="p-2 font-mono text-xs">${a.id}</td><td class="p-2 font-semibold">${a.name}</td><td class="p-2 text-center">${a.icon || ''}</td><td class="p-2 text-xs">${ruleDesc}</td><td class="p-2 text-center">${assignedCount}</td><td class="p-2"><div class="flex gap-2 justify-center"><button data-id="${a.id}" class="edit-achievement-btn px-3 py-1 rounded border text-sm">Edit</button><button data-id="${a.id}" class="assign-achievement-btn px-3 py-1 rounded bg-green-600 text-white text-sm">Assign</button><button data-id="${a.id}" class="delete-achievement-btn px-3 py-1 rounded border text-sm text-red-600">Delete</button></div></td></tr>`;
+                        }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            };
+
+            const openAchievementModal = (achievementId = null) => {
+                const a = achievementId ? achievements.find(x => x.id === achievementId) : {};
+                modalForm.dataset.entity = 'achievement';
+                modalForm.dataset.id = achievementId || '';
+                modalTitle.textContent = achievementId ? 'Edit Achievement' : 'Add Achievement';
+                modalContent.innerHTML = `
+                    <div class="grid grid-cols-1 gap-3">
+                        <div><label class="block mb-1 font-medium">Achievement ID</label><input type="text" id="modal-achievement-id" class="w-full p-2 border rounded-lg font-mono text-sm" ${achievementId ? 'readonly' : ''} value="${a.id || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Name</label><input type="text" id="modal-achievement-name" class="w-full p-2 border rounded-lg" value="${a.name || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Icon (emoji or text)</label><input type="text" id="modal-achievement-icon" class="w-full p-2 border rounded-lg" value="${a.icon || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Rule Type</label><select id="modal-achievement-rule" class="w-full p-2 border rounded-lg"><option value="manual">Manual (assign only)</option><option value="points_gte">Points ≥</option><option value="referrals_gte">Referrals ≥</option><option value="contributions_months_gte">Contributions for months (unique months)</option><option value="type_and_points">Type & Points</option><option value="isNew">Is New</option></select></div>
+                        <div><label class="block mb-1 font-medium">Rule Value (number)</label><input type="number" id="modal-achievement-rule-value" class="w-full p-2 border rounded-lg" value="${a.ruleValue || ''}" /></div>
+                        <div><label class="block mb-1 font-medium">Rule Meta (JSON, optional, e.g. {"type":"Dealer"})</label><input type="text" id="modal-achievement-rule-meta" class="w-full p-2 border rounded-lg font-mono text-sm" value='${a.ruleMeta ? JSON.stringify(a.ruleMeta) : ''}' /></div>
+                        <div><label class="inline-flex items-center"><input type="checkbox" id="modal-achievement-disabled" class="mr-2" ${a.disabled ? 'checked' : ''} /> Disable</label></div>
+                    </div>
+                `;
+                modalFooter.innerHTML = `<button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Achievement</button>`;
+                openModal();
+            };
+
+            const openAssignAchievementModal = (achievementId) => {
+                const a = achievements.find(x => x.id === achievementId);
+                if (!a) return;
+                modalForm.dataset.entity = 'assign-achievement';
+                modalForm.dataset.id = achievementId || '';
+                modalTitle.textContent = `Assign Achievement: ${a.name}`;
+                modalContent.innerHTML = `
+                    <div class="space-y-2">
+                        <p class="text-sm text-gray-600">Select partners to assign/unassign this achievement. Assigning here stores the achievement id in partner.assignedAchievements.</p>
+                        <div id="assign-achievement-list" class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-64 overflow-y-auto mt-2"></div>
+                    </div>
+                `;
+                modalFooter.innerHTML = `<button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Assignments</button>`;
+                openModal();
+
+                const list = document.getElementById('assign-achievement-list');
+                list.innerHTML = partners.map(p => `
+                    <label class="flex items-center gap-3 p-2 border rounded">
+                        <input type="checkbox" data-partner-id="${p.id}" ${ (p.assignedAchievements||[]).includes(a.id) ? 'checked' : '' } />
+                        <div class="flex-grow">${p.name} <span class="text-xs text-gray-500">· ${p.firm}</span></div>
+                    </label>
+                `).join('');
+            };
+
+            // Export achievements JSON helper
+            document.addEventListener('click', (e) => {
+                if (e.target && e.target.id === 'export-achievements') {
+                    const blob = new Blob([JSON.stringify(achievements, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'achievements.json';
+                    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+                }
+            });
+
             const renderAdminSettings = () => {
                 document.getElementById('setting-phone').value = contactDetails.phone;
                 document.getElementById('setting-email').value = contactDetails.email;
@@ -1984,56 +2439,7 @@ const getLastQuarterPoints = (partner) => {
                 ['verified', 'isNew', 'featured'].forEach(key => {
                     if(p[key]) document.getElementById(`modal-partner-${key}`).checked = true;
                 });
-                // Helper: compress image file to target size (approx) using canvas
-                const compressImageFile = (file, targetBytes = 1000000) => {
-                    return new Promise((resolve, reject) => {
-                        if (!file.type.startsWith('image/')) {
-                            reject(new Error('Not an image'));
-                            return;
-                        }
-                        const img = new Image();
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            img.src = reader.result;
-                        };
-                        reader.onerror = reject;
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            const MAX_WIDTH = img.width;
-                            const MAX_HEIGHT = img.height;
-                            // start with original dimensions, we will scale if necessary
-                            canvas.width = MAX_WIDTH;
-                            canvas.height = MAX_HEIGHT;
-                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                            // try progressively reducing quality to reach target
-                            let quality = 0.92;
-                            const step = 0.08; // quality decrement
-                            const tryCompress = () => {
-                                const dataUrl = canvas.toDataURL('image/jpeg', quality);
-                                // estimate size from base64 length
-                                const size = Math.round((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4);
-                                if (size <= targetBytes || quality <= 0.5) {
-                                    resolve(dataUrl);
-                                } else {
-                                    quality = Math.max(0.5, quality - step);
-                                    // if still large and quality hit minimum, try resizing
-                                    if (quality === 0.5 && size > targetBytes) {
-                                        // scale down by 0.9 and retry
-                                        canvas.width = Math.round(canvas.width * 0.9);
-                                        canvas.height = Math.round(canvas.height * 0.9);
-                                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                                    }
-                                    // loop until condition met
-                                    setTimeout(tryCompress, 0);
-                                }
-                            };
-                            tryCompress();
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                };
+                // compressImageFile is defined globally (moved out of modal scope)
 
                 // Handle uploaded photo file and save as data URL into the photo input
                 const photoFileInput = document.getElementById('modal-partner-photo-file');
@@ -2145,10 +2551,47 @@ const getLastQuarterPoints = (partner) => {
                  modalContent.innerHTML = `
                     <div><label class="block mb-1 font-medium">Catalogue Title</label><input type="text" id="modal-catalogue-title" class="w-full p-2 border rounded-lg" required value="${c.title || ''}"></div>
                     <div><label class="block mb-1 font-medium">File URL</label><input type="url" id="modal-catalogue-file" class="w-full p-2 border rounded-lg" required value="${c.file || ''}"></div>
-                    <div><label class="block mb-1 font-medium">Or Upload File</label><input type="file" id="modal-catalogue-file-input" class="w-full p-2 border rounded-lg" accept="application/pdf,image/*" /></div>
+                    <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+                        <div><label class="block mb-1 font-medium">Or Upload File</label><input type="file" id="modal-catalogue-file-input" class="w-full p-2 border rounded-lg" accept="application/pdf,image/*" /></div>
+                        <div id="modal-catalogue-preview-container" class="flex items-center justify-center"></div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+                        <div><label class="block mb-1 font-medium">Cover Image URL</label><input type="url" id="modal-catalogue-cover" class="w-full p-2 border rounded-lg" value="${c.cover || ''}"></div>
+                        <div><label class="block mb-1 font-medium">Or Upload Cover</label><input type="file" id="modal-catalogue-cover-input" class="w-full p-2 border rounded-lg" accept="image/*" /></div>
+                    </div>
+                    <div id="modal-catalogue-cover-preview" class="mt-2"></div>
                  `;
                  modalFooter.innerHTML = `<button type="button" id="cancel-modal-btn" class="px-6 py-2 rounded-lg">Cancel</button><button type="submit" class="px-6 py-2 rounded-lg btn-primary">Save Changes</button>`;
                  openModal();
+                 // Wire cover upload input
+                 const coverFileInput = document.getElementById('modal-catalogue-cover-input');
+                 const coverUrlInput = document.getElementById('modal-catalogue-cover');
+                 const coverPreview = document.getElementById('modal-catalogue-cover-preview');
+                 coverFileInput?.addEventListener('change', async (ev) => {
+                     const file = ev.target.files && ev.target.files[0];
+                     if (!file) return;
+                     const MAX_RAW_BYTES = 2 * 1024 * 1024; // 2 MB
+                     if (file.size > MAX_RAW_BYTES) {
+                         showToast('File too large. Maximum allowed size is 2 MB.', true);
+                         return;
+                     }
+                     try {
+                         if (file.type.startsWith('image/') && typeof window.compressImageFile === 'function') {
+                             showToast('Compressing cover image...');
+                             const compressed = await window.compressImageFile(file, 1000000);
+                             coverUrlInput.value = compressed;
+                         } else if (file.type.startsWith('image/')) {
+                             const reader = new FileReader();
+                             reader.onload = () => { if (typeof reader.result === 'string') coverUrlInput.value = reader.result; };
+                             reader.readAsDataURL(file);
+                         }
+                         coverPreview.innerHTML = `<img src="${coverUrlInput.value}" class="w-40 h-28 object-cover rounded"/>`;
+                         showToast('Cover uploaded.');
+                     } catch (err) {
+                         console.error(err);
+                         showToast('Failed to upload cover image.', true);
+                     }
+                 });
             };
 
             const openResetPasswordModal = () => {
@@ -2214,10 +2657,20 @@ const getLastQuarterPoints = (partner) => {
                 const profileImage = p.photo 
                     ? `<img src="${p.photo}" alt="${p.name}" class="w-full h-full object-cover">`
                     : `<div class="w-full h-full flex items-center justify-center font-bold text-5xl text-white" style="background-color: var(--primary-color);">${p.name.charAt(0)}</div>`;
+                // Compute ring class for the partner detail (reflect top-3/elite/new)
+                const sortedAll = [...partners].sort((a, b) => b.points - a.points);
+                const top3Ids = sortedAll.slice(0, 3).map(x => x.id);
+                const topIndex = top3Ids.indexOf(p.id);
+                let detailRingClass = '';
+                if (topIndex === 0) detailRingClass = 'ring-gold';
+                else if (topIndex === 1) detailRingClass = 'ring-silver';
+                else if (topIndex === 2) detailRingClass = 'ring-bronze';
+                else if (p.elite) detailRingClass = 'ring-elite';
+                else if (p.isNew) detailRingClass = 'ring-new';
 
                 partnerDetailContent.innerHTML = `
                     <div class="flex flex-col md:flex-row items-start gap-6 border-b pb-6 mb-6">
-                        <div class="w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden flex-shrink-0 bg-gray-200 border-4 border-white shadow-md">
+                        <div class="w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden flex-shrink-0 bg-gray-200 border-4 border-white shadow-md ${detailRingClass}">
                             ${profileImage}
                         </div>
                         <div class="flex-grow pt-2">
@@ -2267,6 +2720,15 @@ const getLastQuarterPoints = (partner) => {
             // --- INITIALIZATION ---
 const init = async () => {
     await loadDataFromLocalStorage();  // Wait for data to load!
+    // If the attached catalogue PDF exists in the site root, ensure it's listed once in catalogues
+    try {
+        const attachedFileName = 'Kitchen & Furniture Fittings_MRP_Edition 5.1.pdf';
+        const encodedPath = './' + encodeURIComponent(attachedFileName);
+        const exists = catalogues.some(c => (c.file || '').includes(attachedFileName) || (c.file || '') === encodedPath);
+        if (!exists) {
+            catalogues.push({ id: Date.now() + 1, title: 'Kitchen & Furniture Fittings_MRP_Edition 5.1', file: encodedPath });
+        }
+    } catch (err) { /* ignore */ }
     renderPartners();
     renderLeaderboard();
     renderScheme();
@@ -2275,6 +2737,8 @@ const init = async () => {
     renderPodcasts();
     renderContactInfo();
     showPage(window.location.hash || '#home');
+    // Hide initial loader once UI is ready
+    try { hideLoader(); } catch(e) {}
 };
 
 // Run initialization
@@ -2339,7 +2803,10 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             document.getElementById('admin-login-form').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
             document.getElementById('login-error').classList.add('hidden');
-            renderAdminPartners(); renderAdminPodcasts(); renderAdminCatalogues(); renderAdminForms(); renderAdminSettings();
+            renderAdminPartners(); renderAdminPodcasts(); renderAdminCatalogues(); renderAdminForms(); renderAdminSettings(); renderAdminAchievements();
+            // Ensure admin stats and finance panels are up-to-date immediately after login
+            try { updateAdminStats(); } catch (e) {}
+            try { renderFinancialDashboard(); } catch (e) {}
         } else {
             document.getElementById('login-error').classList.remove('hidden');
         }
@@ -2441,6 +2908,16 @@ document.getElementById('logout-button').addEventListener('click', () => {
                         catalogues = catalogues.filter(c => c.id !== parseInt(button.dataset.id));
                         renderAdminCatalogues(); renderCatalogues(); showToast("Catalogue deleted."); saveDataToLocalStorage();
                     }
+                } else if (button.classList.contains('edit-achievement-btn')) {
+                    openAchievementModal(parseInt(button.dataset.id));
+                } else if (button.classList.contains('delete-achievement-btn')) {
+                    if (confirm('Delete this achievement?')) {
+                        achievements = achievements.filter(a => a.id !== button.dataset.id);
+                        renderAdminAchievements(); saveDataToLocalStorage();
+                        showToast('Achievement deleted.');
+                    }
+                } else if (button.classList.contains('assign-achievement-btn')) {
+                    openAssignAchievementModal(button.dataset.id);
                 } else if (button.id === 'reset-points-button') {
                     openResetPasswordModal();
                 }
@@ -2606,12 +3083,10 @@ document.getElementById('logout-button').addEventListener('click', () => {
                         const projectName = parts.slice(0, -1).join('|').trim();
                         let url = parts[parts.length - 1].trim();
                         if (!projectName || !url) return null;
-                        // If protocol missing, assume https://
-                        if (!/^https?:\/\//i.test(url)) {
-                            url = 'https://' + url;
+                        // Relaxed URL normalization: accept protocol-relative and add https when missing
+                        if (url && !url.startsWith('http')) {
+                            url = url.startsWith('//') ? 'https:' + url : 'https://' + url;
                         }
-                        // Basic validation: must contain a dot (domain-like)
-                        if (!/[\w-]+\.[\w.-]+/.test(url)) return null;
                         return { projectName, url };
                     }).filter(Boolean);
 
@@ -2677,12 +3152,70 @@ document.getElementById('logout-button').addEventListener('click', () => {
                     else podcasts.push({ ...podcastData, id: Date.now() });
                     renderAdminPodcasts();
                 } else if(entity === 'catalogue') {
-                    const catalogueData = { title: document.getElementById('modal-catalogue-title').value, file: document.getElementById('modal-catalogue-file').value };
+                    const catalogueData = { title: document.getElementById('modal-catalogue-title').value, file: document.getElementById('modal-catalogue-file').value, cover: (document.getElementById('modal-catalogue-cover') ? document.getElementById('modal-catalogue-cover').value : '') };
                     if(id) catalogues[catalogues.findIndex(c => c.id === id)] = { ...catalogues.find(c => c.id === id), ...catalogueData };
                     else catalogues.push({ ...catalogueData, id: Date.now() });
                     renderAdminCatalogues();
-                }
+                } else if(entity === 'achievement') {
+                    // Save or update an achievement definition
+                    const achIdInput = document.getElementById('modal-achievement-id');
+                    const achId = achIdInput ? achIdInput.value.trim() : (Date.now().toString());
+                    const achName = (document.getElementById('modal-achievement-name') || {}).value || '';
+                    const achIcon = (document.getElementById('modal-achievement-icon') || {}).value || '';
+                    const ruleType = (document.getElementById('modal-achievement-rule') || {}).value || 'manual';
+                    const ruleValueRaw = (document.getElementById('modal-achievement-rule-value') || {}).value;
+                    const ruleValue = ruleValueRaw === '' ? null : Number(ruleValueRaw);
+                    const ruleMetaRaw = (document.getElementById('modal-achievement-rule-meta') || {}).value || '';
+                    let ruleMeta = null;
+                    if (ruleMetaRaw) {
+                        try { ruleMeta = JSON.parse(ruleMetaRaw); } catch (e) { ruleMeta = { raw: ruleMetaRaw }; }
+                    }
+                    const disabled = !!(document.getElementById('modal-achievement-disabled') && document.getElementById('modal-achievement-disabled').checked);
 
+                    const achievementObj = { id: achId, name: achName, icon: achIcon, ruleType: ruleType, ruleValue: ruleValue, ruleMeta: ruleMeta, disabled };
+
+                    if (id) {
+                        const idx = achievements.findIndex(a => a.id === id || a.id === achId);
+                        if (idx > -1) achievements[idx] = { ...achievements[idx], ...achievementObj };
+                        else achievements.push(achievementObj);
+                    } else {
+                        // ensure id uniqueness
+                        if (achievements.some(a => a.id === achId)) {
+                            // fallback to timestamp id
+                            achievementObj.id = Date.now().toString();
+                        }
+                        achievements.push(achievementObj);
+                    }
+                    renderAdminAchievements();
+                } else if(entity === 'assign-achievement') {
+                    // Update partner.assignedAchievements based on checkboxes in assign modal
+                    const achievementId = modalForm.dataset.id;
+                    if (!achievementId) {
+                        showToast('No achievement selected for assignment.', true);
+                    } else {
+                        const list = document.getElementById('assign-achievement-list');
+                        if (list) {
+                            const checks = Array.from(list.querySelectorAll('input[type="checkbox"][data-partner-id]'));
+                            checks.forEach(chk => {
+                                const pidRaw = chk.getAttribute('data-partner-id');
+                                const pid = pidRaw ? Number(pidRaw) : pidRaw;
+                                const partnerIndex = partners.findIndex(p => p.id === pid);
+                                if (partnerIndex > -1) {
+                                    const p = partners[partnerIndex];
+                                    p.assignedAchievements = Array.isArray(p.assignedAchievements) ? p.assignedAchievements : [];
+                                    const has = p.assignedAchievements.includes(achievementId);
+                                    if (chk.checked && !has) {
+                                        p.assignedAchievements.push(achievementId);
+                                    } else if (!chk.checked && has) {
+                                        p.assignedAchievements = p.assignedAchievements.filter(x => x !== achievementId);
+                                    }
+                                }
+                            });
+                        }
+                        renderAdminAchievements();
+                        renderAdminPartners();
+                    }
+                }
                 closeModal();
                 renderAll();
                 showToast(`${entity.charAt(0).toUpperCase() + entity.slice(1)} saved successfully.`);
@@ -2750,10 +3283,6 @@ document.getElementById('logout-button').addEventListener('click', () => {
             function renderAll() {
                 renderPartners(); renderLeaderboard(); renderScheme(); renderCatalogues(); renderPodcasts(); renderContactInfo(); renderHeroTicker();
             }
-            loadDataFromLocalStorage();
-            showPage(window.location.hash); 
-            renderAll(); 
-            lucide.createIcons();
         });
             // --- Compatibility shims & safety nets for catalogue behavior ---
             // Ensure global functions exist under both window.* and plain names so other code calls succeed
