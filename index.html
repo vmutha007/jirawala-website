@@ -283,6 +283,13 @@
 
         /* Header logo default sizing */
         .header-logo { max-height: 48px; width: auto; display: block; }
+
+        /* iOS rendering/transform fix for header images to avoid blurring and cropping on WebKit */
+        header img {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            image-rendering: -webkit-optimize-contrast;
+        }
     </style>
 </head>
 
@@ -299,14 +306,14 @@
     <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="flex items-center gap-3">
-                <img src="./Jirwala Logo.png" alt="Jirawala Axis Logo" class="header-logo" />
+                <img src="./Jirwala Logo.png" alt="Jirawala Axis Logo" class="header-logo" style="max-width:48px;" />
                 <div>
                     <span class="text-2xl font-bold" style="color: orangered;">Jirawala Axis</span>
                     <p class="text-xs text-gray-500 font-semibold tracking-wide -mt-1">Authorised Distributor for Ozone</p>
                 </div>
             </a>
             <!-- Header quick-nav moved from hero: compact single-line buttons to jump to important sections (mobile-only) -->
-            <div id="hero-mobile-quicknav" class="hidden md:hidden ml-4">
+            <div id="hero-mobile-quicknav" class="flex md:hidden ml-4">
                 <div class="bg-white/90 rounded-full px-2 py-1 shadow-md flex gap-2 overflow-x-auto max-w-lg">
                     <a href="#portfolio" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Portfolio</a>
                     <a href="#catalogues" class="text-sm px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200">Catalogues</a>
