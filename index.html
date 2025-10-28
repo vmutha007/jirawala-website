@@ -384,23 +384,30 @@
         .profile-modal-header {
             position: relative;
             height: 220px;
+            height: 160px; /* Default height for mobile */
         }
         .profile-banner {
             width: 100%;
             height: 100%;
             object-fit: cover;
             background-color: #e2e8f0;
+            border-top-left-radius: 0.5rem; /* Match modal radius */
+            border-top-right-radius: 0.5rem;
         }
         .profile-avatar-wrapper {
             position: absolute;
             bottom: -48px;
+            bottom: -40px; /* Adjusted for smaller mobile avatar */
             left: 50%;
             transform: translateX(-50%);
             width: 128px;
             height: 128px;
+            width: 96px; /* Smaller avatar for mobile */
+            height: 96px;
             border-radius: 9999px;
             background-color: #fff;
             padding: 6px;
+            padding: 4px; /* Adjusted padding */
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .profile-avatar {
@@ -408,9 +415,25 @@
             height: 100%;
             border-radius: 9999px;
             object-fit: cover;
+            background-color: #e2e8f0; /* Fallback color */
         }
         .profile-body {
             padding-top: 80px; /* Increased space for centered avatar */
+            padding-top: 64px; /* Adjusted for smaller avatar */
+        }
+        @media (min-width: 768px) { /* md breakpoint and up */
+            .profile-modal-header {
+                height: 220px; /* Taller banner for tablets and desktops */
+            }
+            .profile-avatar-wrapper {
+                bottom: -48px; /* Restore original position */
+                width: 128px;  /* Restore original size */
+                height: 128px;
+                padding: 6px;
+            }
+            .profile-body {
+                padding-top: 80px; /* Restore original padding */
+            }
         }
         .profile-stat-card {
             background-color: rgba(255, 255, 255, 0.1);
@@ -3253,6 +3276,7 @@ const getLastQuarterPoints = (partner) => {
                 partnerDetailContent.innerHTML = `
                     <div class="profile-modal-header">
                         <img src="${globalBannerUrl || p.banner || './catalogues/Kitchen_Furniture_Fittings_MRP_Edition_5.1-cover.jpg'}" alt="Profile banner" class="profile-banner">
+                        <img src="${p.banner || globalBannerUrl || './catalogues/Kitchen_Furniture_Fittings_MRP_Edition_5.1-cover.jpg'}" alt="Profile banner" class="profile-banner">
                         <div class="profile-avatar-wrapper ${detailRingClass}">
                             <img src="${p.photo || './Jirwala Logo.png'}" alt="${p.name}" class="profile-avatar">
                         </div>
